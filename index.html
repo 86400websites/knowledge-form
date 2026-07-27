@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Record a file — Alliance Knowledge Repository</title>
+
+<!-- ===================================================================
+     CONFIG — the only two lines you ever edit in this file.
+
+     ENDPOINT   The Apps Script Web App URL. Ends in /exec.
+     SHEET_URL  The link to your Google Sheet.
+
+     Client and people names are NOT here. They live in the "Lists" tab
+     of the Sheet, so adding one never means touching this file again.
+     =================================================================== -->
+<script>
+const CONFIG = {
+  ENDPOINT:  "https://script.google.com/macros/s/AKfycbzyEZh8SD8LCle2LNtXtYfzW1tjAF2lk9tOVUWw30BHX_BvBHP9xcMpMMTNcbpkGJQ/exec",
+  SHEET_URL: "https://docs.google.com/spreadsheets/d/1ShGnzUGe6k6ZxQTpPDyMa1p3iDElr6Waz_HQyip8k48/edit?gid=1427674381#gid=1427674381"
+};
+</script>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;450;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root{
+  --paper:#FFFFFF;
+  --ground:#ECF0F2;
+  --surface:#F7F9FA;
+  --ink:#12161A;
+  --ink-soft:#5A6672;
+  --ink-faint:#8A949E;
+  --rule:#DFE5E8;
+  --rule-soft:#EBEFF1;
+  --accent:#006E8A;
+  --accent-deep:#005267;
+  --accent-2:#00A883;
+  --accent-3:#ABD328;
+  --warn:#9A3412;
+  --warn-bg:#FDF3EF;
+  --mono:ui-monospace,"SF Mono",SFMono-Regular,Menlo,Consolas,"Liberation Mono",monospace;
+  --sans:"Inter",-apple-system,BlinkMacSystemFont,"Segoe UI",Roboto,Helvetica,Arial,sans-serif;
+}
+
+*{box-sizing:border-box}
+html{-webkit-text-size-adjust:100%}
+body{
+  margin:0;
+  background:var(--ground);
+  background-image:radial-gradient(circle at 1px 1px, rgba(18,22,26,.045) 1px, transparent 0);
+  background-size:22px 22px;
+  color:var(--ink);
+  font-family:var(--sans);
+  font-size:16px;line-height:1.5;
+  -webkit-font-smoothing:antialiased;
+}
+
+.page{max-width:600px;margin:0 auto;padding:44px 20px 72px}
+@media (max-width:600px){ .page{padding:20px 14px 56px} }
+
+/* ---------- the card ---------- */
+.card{
+  background:var(--paper);
+  border:1px solid var(--rule);
+  border-radius:8px;
+  overflow:hidden;
+  box-shadow:0 1px 2px rgba(18,22,26,.04), 0 18px 40px -28px rgba(18,22,26,.28);
+}
+.tri{display:flex;height:3px}
+.tri i{flex:1}
+.tri i:nth-child(1){background:var(--accent)}
+.tri i:nth-child(2){background:var(--accent-2)}
+.tri i:nth-child(3){background:var(--accent-3)}
+
+.card-inner{padding:30px 34px 34px}
+@media (max-width:600px){ .card-inner{padding:24px 20px 28px} }
+
+/* ---------- masthead ---------- */
+.masthead{display:flex;align-items:flex-start;justify-content:space-between;gap:14px}
+.brand{display:flex;align-items:center;gap:11px;min-width:0}
+.brand img{display:block;height:30px;width:auto}
+.wordmark{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.13em;
+  text-transform:uppercase;color:var(--ink);line-height:1.45;
+}
+.chip{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;
+  text-transform:uppercase;color:var(--ink-faint);
+  background:var(--surface);border:1px solid var(--rule-soft);border-radius:4px;
+  padding:6px 9px;white-space:nowrap;flex:none;line-height:1.2;text-align:right;
+}
+.chip b{display:block;color:var(--accent);font-weight:600;font-size:12px;letter-spacing:.03em;margin-top:2px}
+.chip[hidden]{display:none}
+
+h1{
+  font-size:21px;font-weight:600;letter-spacing:-.015em;
+  margin:26px 0 8px;line-height:1.25;
+}
+.lede{font-size:14px;color:var(--ink-soft);margin:0 0 4px;max-width:44ch}
+
+/* ---------- sections ---------- */
+.sec{border:0;padding:0;margin:32px 0 0;min-width:0}
+.sec-head{
+  display:flex;align-items:center;gap:11px;width:100%;
+  padding:0 0 11px;border-bottom:1px solid var(--rule-soft);margin-bottom:22px;
+}
+.badge{
+  flex:none;width:23px;height:23px;border-radius:4px;
+  border:1px solid var(--rule);background:var(--surface);
+  display:flex;align-items:center;justify-content:center;
+  font-family:var(--mono);font-size:10px;font-weight:600;color:var(--ink-faint);
+  transition:background .2s ease,border-color .2s ease,color .2s ease;
+}
+.sec.done .badge{background:var(--accent);border-color:var(--accent);color:#fff}
+.sec-title{
+  font-family:var(--mono);font-size:10.5px;letter-spacing:.11em;
+  text-transform:uppercase;color:var(--ink);font-weight:600;
+}
+.sec-note{
+  margin-left:auto;font-family:var(--mono);font-size:9.5px;letter-spacing:.08em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+.sec.done .sec-note{color:var(--accent)}
+
+/* ---------- fields ---------- */
+.f{margin-bottom:19px}
+.f:last-child{margin-bottom:0}
+label,.lab{
+  display:block;font-family:var(--mono);font-size:10px;
+  letter-spacing:.1em;text-transform:uppercase;color:var(--ink-soft);
+  margin-bottom:7px;font-weight:500;
+}
+
+input[type=text],input[type=url],select,textarea{
+  width:100%;font-family:var(--sans);font-size:16px;color:var(--ink);
+  background:var(--surface);border:1px solid var(--rule);border-radius:5px;
+  padding:12px 13px;line-height:1.4;
+  appearance:none;-webkit-appearance:none;
+  transition:border-color .15s ease,box-shadow .15s ease,background .15s ease;
+}
+input::placeholder,textarea::placeholder{color:var(--ink-faint)}
+textarea{resize:vertical;min-height:92px}
+select{
+  cursor:pointer;
+  background-image:url("data:image/svg+xml;charset=utf-8,%3Csvg xmlns='http://www.w3.org/2000/svg' width='11' height='7'%3E%3Cpath d='M1 1.5l4.5 4 4.5-4' fill='none' stroke='%235A6672' stroke-width='1.6' stroke-linecap='round'/%3E%3C/svg%3E");
+  background-repeat:no-repeat;background-position:right 13px center;padding-right:36px;
+}
+select:disabled{opacity:.55;cursor:default}
+input:hover,select:hover,textarea:hover{border-color:#CBD4D9}
+input:focus,select:focus,textarea:focus{
+  outline:none;background:var(--paper);
+  border-color:var(--accent);box-shadow:0 0 0 3px rgba(0,110,138,.13);
+}
+
+.help{font-family:var(--mono);font-size:10.5px;color:var(--ink-faint);margin-top:7px;line-height:1.55}
+.err{
+  font-family:var(--mono);font-size:10.5px;color:var(--warn);
+  margin-top:7px;line-height:1.55;display:none;
+  background:var(--warn-bg);border-left:2px solid var(--warn);padding:6px 9px;border-radius:0 3px 3px 0;
+}
+.f.bad .err{display:block}
+.f.bad input,.f.bad select,.f.bad textarea{border-color:var(--warn);background:var(--paper)}
+.f.bad .help{display:none}
+.count{
+  float:right;font-family:var(--mono);font-size:9.5px;color:var(--ink-faint);
+  letter-spacing:0;text-transform:none;font-weight:400;
+}
+.stack{display:grid;gap:9px}
+
+/* ---------- submit ---------- */
+.actions{margin-top:30px;padding-top:26px;border-top:1px solid var(--rule-soft)}
+button.go{
+  width:100%;min-height:52px;background:var(--accent);color:#fff;border:0;
+  border-radius:5px;font-family:var(--sans);font-size:15.5px;font-weight:500;
+  letter-spacing:.005em;cursor:pointer;
+  transition:background .15s ease,transform .08s ease;
+}
+button.go:hover{background:var(--accent-deep)}
+button.go:active{transform:translateY(1px)}
+button.go:disabled{opacity:.5;cursor:default;transform:none}
+button.go:focus-visible{outline:2px solid var(--ink);outline-offset:2px}
+.formerr{
+  font-family:var(--mono);font-size:10.5px;color:var(--warn);
+  margin-top:14px;line-height:1.6;display:none;text-align:center;
+}
+.formerr.on{display:block}
+
+/* ---------- record stub ---------- */
+#stub[hidden]{display:none}
+.stub-kicker{
+  font-family:var(--mono);font-size:10px;letter-spacing:.14em;
+  text-transform:uppercase;color:var(--accent-2);font-weight:600;
+}
+.stub-id{
+  font-family:var(--mono);font-size:34px;letter-spacing:.01em;
+  color:var(--ink);margin:8px 0 26px;font-weight:600;
+}
+.perf{border-top:1px dashed var(--rule);margin:0 0 4px}
+.row{display:flex;gap:16px;padding:10px 0;border-bottom:1px solid var(--rule-soft);font-size:14px}
+.row:last-of-type{border-bottom:0}
+.row dt{
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-faint);width:86px;flex:none;padding-top:4px;
+}
+.row dd{margin:0;min-width:0;word-break:break-word}
+.stub-actions{display:flex;flex-wrap:wrap;gap:12px;margin-top:28px}
+.again{
+  flex:1;min-width:180px;min-height:46px;background:var(--accent);color:#fff;border:0;
+  border-radius:5px;font-family:var(--sans);font-size:14.5px;font-weight:500;cursor:pointer;
+  transition:background .15s ease;
+}
+.again:hover{background:var(--accent-deep)}
+.opensheet{
+  flex:none;min-height:46px;display:flex;align-items:center;justify-content:center;
+  padding:0 18px;border:1px solid var(--rule);border-radius:5px;
+  font-family:var(--sans);font-size:14.5px;color:var(--ink);text-decoration:none;
+  transition:border-color .15s ease,background .15s ease;
+}
+.opensheet:hover{border-color:var(--accent);background:var(--surface)}
+
+.foot{
+  text-align:center;margin-top:20px;
+  font-family:var(--mono);font-size:9.5px;letter-spacing:.1em;
+  text-transform:uppercase;color:var(--ink-faint);
+}
+
+.hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
+
+@media (prefers-reduced-motion:reduce){
+  *{transition:none !important;animation:none !important}
+}
+</style>
+</head>
+
+<body>
+<div class="page">
+<div class="card">
+  <div class="tri"><i></i><i></i><i></i></div>
+  <div class="card-inner">
+
+    <div class="masthead">
+      <div class="brand">
+        <img src="data:image/png;base64,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" alt="Alliance">
+        <span class="wordmark">Alliance<br>Knowledge Repository</span>
+      </div>
+      <div class="chip" id="chip" hidden>Next record<b id="chipId"></b></div>
+    </div>
+
+    <div id="intro">
+      <h1>Record a file</h1>
+      <p class="lede">Upload the file to Drive first. This form records it in the Knowledge Index so it can be found again.</p>
+    </div>
+
+    <form id="form" novalidate>
+
+      <fieldset class="sec" id="sec1">
+        <div class="sec-head">
+          <span class="badge">01</span>
+          <span class="sec-title">The file</span>
+          <span class="sec-note" id="note1">3 fields</span>
+        </div>
+
+        <div class="f" id="f-title">
+          <label for="title">Title</label>
+          <input type="text" id="title" autocomplete="off" placeholder="2026 - ABC Company - AI Leadership Proposal - v1" aria-describedby="e-title">
+          <div class="help">The same as the file name in Drive. Leave off the extension.</div>
+          <div class="err" id="e-title"></div>
+        </div>
+
+        <div class="f" id="f-desc">
+          <label for="desc">Description <span class="count" id="count"></span></label>
+          <textarea id="desc" rows="3" placeholder="What this file is, and when you would use it." aria-describedby="e-desc"></textarea>
+          <div class="help">One or two sentences. Write it for someone who has never seen the file.</div>
+          <div class="err" id="e-desc"></div>
+        </div>
+
+        <div class="f" id="f-link">
+          <label for="link">Drive link</label>
+          <input type="url" id="link" autocomplete="off" placeholder="https://drive.google.com/..." aria-describedby="e-link">
+          <div class="help">In Drive, right-click the file &rsaquo; Share &rsaquo; Copy link.</div>
+          <div class="err" id="e-link"></div>
+        </div>
+      </fieldset>
+
+      <fieldset class="sec" id="sec2">
+        <div class="sec-head">
+          <span class="badge">02</span>
+          <span class="sec-title">Where it lives</span>
+          <span class="sec-note" id="note2">3 fields</span>
+        </div>
+
+        <div class="f" id="f-lib">
+          <label for="lib">Library</label>
+          <select id="lib" aria-describedby="e-lib"></select>
+          <div class="err" id="e-lib"></div>
+        </div>
+
+        <div class="f" id="f-path">
+          <span class="lab" id="pathLab">Folder</span>
+          <div class="stack" id="pathWrap" role="group" aria-labelledby="pathLab"></div>
+          <div class="help" id="pathHelp">Choose the library first.</div>
+          <div class="err" id="e-path"></div>
+        </div>
+
+        <div class="f" id="f-doc">
+          <label for="doc">Doc type</label>
+          <select id="doc" aria-describedby="e-doc"></select>
+          <div class="help">Pick the closest match. Do not overthink it.</div>
+          <div class="err" id="e-doc"></div>
+        </div>
+      </fieldset>
+
+      <div class="hp" aria-hidden="true">
+        <label for="website">Website</label>
+        <input type="text" id="website" name="website" tabindex="-1" autocomplete="off">
+      </div>
+
+      <div class="actions">
+        <button type="submit" class="go" id="go">Record file</button>
+        <div class="formerr" id="formerr" role="alert" aria-live="polite"></div>
+      </div>
+    </form>
+
+    <div id="stub" hidden></div>
+
+  </div>
+</div>
+<div class="foot">Alliance Knowledge Repository</div>
+</div>
+
+<script>
+(function(){
+"use strict";
+
+/* ---------- fixed vocabularies ---------- */
+
+var LIBRARIES = ["01 Clients","02 Content","03 Market & Sell","04 People","05 Research","06 Alliance IP","99 Archive"];
+
+var PATHS = {
+  "01 Clients":      {mode:"client", subs:["01 Commercial","02 Delivery","03 Relationship"]},
+  "02 Content":      {mode:"list", options:["Artificial Intelligence","Leadership","Future of Work","Learning & Skills","Innovation"]},
+  "03 Market & Sell":{mode:"list", options:["Proposal Library","Capability Decks","Case Studies","Pricing & Commercial Templates","Brand Assets"]},
+  "04 People":       {mode:"person"},
+  "05 Research":     {mode:"list", options:["Alliance Thought Leadership","External Research"]},
+  "06 Alliance IP":  {mode:"list", options:["Frameworks & Models","Methodologies","Templates & Playbooks","Prompt Library"]},
+  "99 Archive":      {mode:"list", options:["Archive"]}
+};
+
+var DOCTYPES = [
+  ["Commercial",        ["Proposal","Contract / SOW","Pricing Document"]],
+  ["Delivery material", ["Slide Deck","Workbook","Facilitator Guide","Activity","Assessment","Case Study"]],
+  ["Written",           ["Report","Article","Meeting Notes"]],
+  ["Media",             ["Video","Image / Brand Asset"]],
+  ["Reusable",          ["Template","Framework","Prompt"]],
+  ["People",            ["CV / Biography","Feedback"]],
+  ["Anything else",     ["Other"]]
+];
+
+/* Client and people names come from the Lists tab of the Sheet, never from here. */
+var LISTS = { clients: [], people: [], loaded: false };
+
+/* ---------- helpers ---------- */
+
+function $(id){ return document.getElementById(id); }
+
+function fill(sel, items, placeholder, selected){
+  sel.innerHTML = "";
+  if (placeholder !== null && placeholder !== undefined){
+    var o = document.createElement("option");
+    o.value = ""; o.textContent = placeholder;
+    sel.appendChild(o);
+  }
+  items.forEach(function(v){
+    var op = document.createElement("option");
+    op.value = v; op.textContent = v;
+    if (v === selected) op.selected = true;
+    sel.appendChild(op);
+  });
+}
+
+function bad(fid, msg){
+  var f = $(fid);
+  f.classList.add("bad");
+  var e = f.querySelector(".err");
+  if (e) e.textContent = msg;
+}
+function ok(fid){
+  var f = $(fid);
+  if (!f) return;
+  f.classList.remove("bad");
+  var e = f.querySelector(".err");
+  if (e) e.textContent = "";
+}
+
+/* ---------- build the controls ---------- */
+
+fill($("lib"), LIBRARIES, "Choose a library");
+
+var docSel = $("doc");
+docSel.appendChild(new Option("Choose a doc type", ""));
+DOCTYPES.forEach(function(g){
+  var og = document.createElement("optgroup");
+  og.label = g[0];
+  g[1].forEach(function(v){ og.appendChild(new Option(v, v)); });
+  docSel.appendChild(og);
+});
+
+/* ---------- folder path ---------- */
+
+function nameSelect(id, label, names, placeholder){
+  var s = document.createElement("select");
+  s.id = id;
+  s.setAttribute("aria-label", label);
+  if (!LISTS.loaded){
+    fill(s, [], "Loading\u2026");
+    s.disabled = true;
+  } else if (!names.length){
+    fill(s, [], "No names in the Lists tab yet");
+    s.disabled = true;
+  } else {
+    fill(s, names, placeholder);
+  }
+  return s;
+}
+
+function renderPath(){
+  var lib  = $("lib").value;
+  var wrap = $("pathWrap");
+  wrap.innerHTML = "";
+  ok("f-path");
+
+  if (!lib){
+    $("pathHelp").textContent = "Choose the library first.";
+    refresh();
+    return;
+  }
+
+  var spec = PATHS[lib];
+
+  if (spec.mode === "client"){
+    var c = nameSelect("pClient", "Client", LISTS.clients, "Choose a client");
+    var s = document.createElement("select");
+    s.id = "pSub"; s.setAttribute("aria-label", "Subfolder");
+    fill(s, spec.subs, "Choose a subfolder");
+    wrap.appendChild(c); wrap.appendChild(s);
+    c.addEventListener("change", function(){ ok("f-path"); refresh(); });
+    s.addEventListener("change", function(){ ok("f-path"); refresh(); });
+    $("pathHelp").textContent = LISTS.loaded && !LISTS.clients.length
+      ? "Add the client to the Lists tab of the Sheet, then refresh this page."
+      : "Recorded as: client > subfolder.";
+  }
+  else if (spec.mode === "person"){
+    var p = nameSelect("pPerson", "Person", LISTS.people, "Choose a person");
+    wrap.appendChild(p);
+    p.addEventListener("change", function(){ ok("f-path"); refresh(); });
+    $("pathHelp").textContent = LISTS.loaded && !LISTS.people.length
+      ? "Add the person to the Lists tab of the Sheet, then refresh this page."
+      : "One folder per facilitator or team member.";
+  }
+  else {
+    var o = document.createElement("select");
+    o.id = "pOne"; o.setAttribute("aria-label", "Folder");
+    fill(o, spec.options, "Choose a folder");
+    wrap.appendChild(o);
+    o.addEventListener("change", function(){ ok("f-path"); refresh(); });
+    $("pathHelp").textContent = "The folder the file is sitting in.";
+  }
+  refresh();
+}
+
+function folderPath(){
+  var lib = $("lib").value;
+  if (!lib) return "";
+  var m = PATHS[lib].mode;
+  if (m === "client"){
+    var c = $("pClient"), s = $("pSub");
+    if (!c || !s || !c.value || !s.value) return "";
+    return c.value + " > " + s.value;
+  }
+  if (m === "person"){
+    var p = $("pPerson");
+    return (p && p.value) ? p.value : "";
+  }
+  var o = $("pOne");
+  return (o && o.value) ? o.value : "";
+}
+
+$("lib").addEventListener("change", function(){ ok("f-lib"); renderPath(); });
+renderPath();
+
+/* ---------- live section state ---------- */
+
+function linkOk(v){ return /^https:\/\/(drive|docs)\.google\.com\//.test(v); }
+
+function refresh(){
+  var n1 = 0;
+  if ($("title").value.trim())              n1++;
+  if ($("desc").value.trim().length >= 20)  n1++;
+  if (linkOk($("link").value.trim()))       n1++;
+
+  var n2 = 0;
+  if ($("lib").value)   n2++;
+  if (folderPath())     n2++;
+  if ($("doc").value)   n2++;
+
+  $("sec1").classList.toggle("done", n1 === 3);
+  $("sec2").classList.toggle("done", n2 === 3);
+  $("note1").textContent = n1 === 3 ? "\u2713 Complete" : (3 - n1) + " to go";
+  $("note2").textContent = n2 === 3 ? "\u2713 Complete" : (3 - n2) + " to go";
+}
+
+var descEl = $("desc"), countEl = $("count");
+descEl.addEventListener("input", function(){
+  var n = descEl.value.trim().length;
+  countEl.textContent = n ? n + " characters" : "";
+  if (n >= 20) ok("f-desc");
+  refresh();
+});
+
+[["title","f-title"],["link","f-link"],["doc","f-doc"]].forEach(function(pair){
+  var el = $(pair[0]);
+  el.addEventListener("input",  function(){ ok(pair[1]); refresh(); });
+  el.addEventListener("change", function(){ ok(pair[1]); refresh(); });
+});
+
+refresh();
+
+/* ---------- load lists + next record number ---------- */
+
+function loadInit(){
+  if (typeof fetch !== "function") return;
+  if (!/^https:\/\//.test(CONFIG.ENDPOINT)) { LISTS.loaded = true; renderPath(); return; }
+  try {
+    fetch(CONFIG.ENDPOINT + "?action=init")
+      .then(function(r){ return r.json(); })
+      .then(function(d){
+        if (!d) return;
+        if (d.next){ $("chipId").textContent = d.next; $("chip").hidden = false; }
+        LISTS.clients = d.clients || [];
+        LISTS.people  = d.people  || [];
+        LISTS.loaded  = true;
+        renderPath();
+      })
+      .catch(function(){ LISTS.loaded = true; renderPath(); });
+  } catch (e) { LISTS.loaded = true; }
+}
+loadInit();
+
+/* ---------- validation ---------- */
+
+function validate(){
+  var n = 0;
+
+  if (!$("title").value.trim()){
+    bad("f-title", "Enter the title. It must match the file name in Drive."); n++;
+  } else ok("f-title");
+
+  if ($("desc").value.trim().length < 20){
+    bad("f-desc", "Write one or two sentences about what this file is. At least 20 characters."); n++;
+  } else ok("f-desc");
+
+  var link = $("link").value.trim();
+  if (!link){
+    bad("f-link", "Paste the Drive link. Right-click the file in Drive \u203A Share \u203A Copy link."); n++;
+  } else if (!linkOk(link)){
+    bad("f-link", "That is not a Google Drive link. In Drive, right-click the file, choose Share, then Copy link."); n++;
+  } else ok("f-link");
+
+  if (!$("lib").value){
+    bad("f-lib", "Choose the library you uploaded into."); n++;
+  } else {
+    ok("f-lib");
+    if (!folderPath()){
+      bad("f-path", "Choose the exact folder the file is sitting in."); n++;
+    } else ok("f-path");
+  }
+
+  if (!$("doc").value){
+    bad("f-doc", "Choose what kind of file this is. Pick the closest match."); n++;
+  } else ok("f-doc");
+
+  return n;
+}
+
+/* ---------- submit ---------- */
+
+var form = $("form"), go = $("go"), formerr = $("formerr");
+var sending = false;
+
+form.addEventListener("submit", function(ev){
+  ev.preventDefault();
+  if (sending) return;          /* Enter in a text field bypasses the disabled button */
+  formerr.classList.remove("on");
+
+  var n = validate();
+  if (n){
+    formerr.textContent = (n === 1)
+      ? "One field needs attention. It is marked above."
+      : n + " fields need attention. They are marked above.";
+    formerr.classList.add("on");
+    var first = document.querySelector(".f.bad");
+    if (first){
+      first.scrollIntoView({block:"center", behavior:"smooth"});
+      var focusable = first.querySelector("input,select,textarea");
+      if (focusable) focusable.focus({preventScroll:true});
+    }
+    return;
+  }
+
+  if ($("website").value) return;   /* honeypot */
+
+  var payload = {
+    title:       $("title").value.trim(),
+    description: $("desc").value.trim(),
+    driveLink:   $("link").value.trim(),
+    library:     $("lib").value,
+    folderPath:  folderPath(),
+    docType:     $("doc").value,
+    website:     ""
+  };
+
+  sending = true;
+  go.disabled = true;
+  go.textContent = "Recording\u2026";
+
+  fetch(CONFIG.ENDPOINT, {
+    method: "POST",
+    headers: {"Content-Type": "text/plain;charset=utf-8"},
+    body: JSON.stringify(payload)
+  })
+  .then(function(r){ return r.json(); })
+  .then(function(d){
+    if (!d || !d.ok) throw new Error(d && d.error ? d.error : "unknown");
+    showStub(d.id, payload);
+  })
+  .catch(function(){
+    sending = false;
+    go.disabled = false;
+    go.textContent = "Record file";
+    formerr.textContent = "Could not reach the Sheet. Check your connection and press Record file again. Nothing was lost.";
+    formerr.classList.add("on");
+  });
+});
+
+/* ---------- record stub ---------- */
+
+function esc(s){
+  return String(s).replace(/[&<>"]/g, function(c){
+    return {"&":"&amp;", "<":"&lt;", ">":"&gt;", '"':"&quot;"}[c];
+  });
+}
+
+function showStub(id, p){
+  var d = new Date();
+  function pad(n){ return (n < 10 ? "0" : "") + n; }
+  var stamp = d.getFullYear() + "-" + pad(d.getMonth()+1) + "-" + pad(d.getDate()) +
+              "  " + pad(d.getHours()) + ":" + pad(d.getMinutes());
+
+  var sheetLink = /^https:\/\//.test(CONFIG.SHEET_URL)
+    ? '<a class="opensheet" href="' + esc(CONFIG.SHEET_URL) + '" target="_blank" rel="noopener">Open the Sheet</a>'
+    : "";
+
+  $("stub").innerHTML =
+    '<div class="stub-kicker">Record created</div>' +
+    '<div class="stub-id">' + esc(id) + '</div>' +
+    '<div class="perf"></div>' +
+    '<dl style="margin:0">' +
+      '<div class="row"><dt>Title</dt><dd>'    + esc(p.title)      + '</dd></div>' +
+      '<div class="row"><dt>Library</dt><dd>'  + esc(p.library)    + '</dd></div>' +
+      '<div class="row"><dt>Folder</dt><dd>'   + esc(p.folderPath) + '</dd></div>' +
+      '<div class="row"><dt>Type</dt><dd>'     + esc(p.docType)    + '</dd></div>' +
+      '<div class="row"><dt>Recorded</dt><dd>' + esc(stamp)        + '</dd></div>' +
+    '</dl>' +
+    '<div class="stub-actions">' +
+      '<button type="button" class="again" id="again">Record another file</button>' + sheetLink +
+    '</div>';
+
+  form.hidden = true;
+  $("intro").hidden = true;
+  $("stub").hidden = false;
+  window.scrollTo({top:0, behavior:"smooth"});
+
+  $("again").addEventListener("click", function(){
+    var keepLib = p.library;
+
+    $("title").value = "";
+    $("desc").value = "";
+    $("link").value = "";
+    countEl.textContent = "";
+    $("doc").value = "";
+
+    $("lib").value = keepLib;
+    renderPath();
+
+    Array.prototype.forEach.call(document.querySelectorAll(".f.bad"), function(f){ f.classList.remove("bad"); });
+    formerr.classList.remove("on");
+
+    sending = false;
+    go.disabled = false;
+    go.textContent = "Record file";
+    $("stub").hidden = true;
+    $("stub").innerHTML = "";
+    $("intro").hidden = false;
+    form.hidden = false;
+    refresh();
+    window.scrollTo({top:0, behavior:"smooth"});
+    $("title").focus();
+    loadInit();
+  });
+}
+
+})();
+</script>
+</body>
+</html>
