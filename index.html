@@ -735,7 +735,7 @@ function choose(library, folderPath, extra){
   box.appendChild(d);
 
   var stack = el("div", "stackbtn");
-  var go = el("button", "go", "Uploaded it \u2014 record it now \u2192");
+  var go = el("button", "go", "Uploaded it? Record it now \u2192");
   go.type = "button";
   go.addEventListener("click", function(){
     var key = S.dest.library + "|" + S.dest.folderPath;
