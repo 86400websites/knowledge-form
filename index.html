@@ -18,10 +18,9 @@ const CONFIG = {
   ENDPOINT:  "https://script.google.com/macros/s/AKfycbzyEZh8SD8LCle2LNtXtYfzW1tjAF2lk9tOVUWw30BHX_BvBHP9xcMpMMTNcbpkGJQ/exec",
   SHEET_URL: "https://docs.google.com/spreadsheets/d/1ShGnzUGe6k6ZxQTpPDyMa1p3iDElr6Waz_HQyip8k48/edit",
 
-  /* Main-folder links only. The live Apps Script response is used first;
-     these are offline fallbacks. Every upload opens the selected library's
-     main folder, where the user can choose the existing or newly-created
-     subfolder and upload the file. */
+  /* Main-folder links only. They are offline fallbacks. During normal use,
+     Apps Script supplies the URL for every nested folder, so the upload button
+     opens the exact folder the operator selected. */
   FOLDER_LINKS: {
     "01 Clients":       "https://drive.google.com/drive/folders/1h_QTToB7McGqbVpbTzCBgvdOH--TIhUd",
     "02 Content":       "https://drive.google.com/drive/folders/1ul98j1cuVhHgb7Cz5f6rIWVM8XSRSsq9",
@@ -124,6 +123,9 @@ h2{font-size:17px;font-weight:600;letter-spacing:-.01em;margin:0 0 4px}
   color:var(--ink-faint);margin-top:3px;letter-spacing:.03em}
 .pick.add{background:var(--paper);border-style:dashed;color:var(--accent)}
 .pick.add:hover{background:var(--surface)}
+.pick.upload{background:var(--accent);border-color:var(--accent);color:#fff}
+.pick.upload:hover{background:var(--accent-deep);border-color:var(--accent-deep)}
+.pick.upload i{color:rgba(255,255,255,.78)}
 
 /* ---------- destination ---------- */
 .dest{border:1px solid var(--rule);border-radius:6px;overflow:hidden;margin-top:4px}
@@ -246,7 +248,8 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 .res h3{font-size:15px;font-weight:500;margin:0 0 5px;line-height:1.4;word-break:break-word}
 .res .meta{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.04em;
   margin-bottom:7px;line-height:1.6;word-break:break-word}
-.res .desc{font-size:13.5px;color:var(--ink-soft);margin:0 0 11px;line-height:1.55}
+.res .desc{font-size:13.5px;color:var(--ink-soft);margin:0 0 8px;line-height:1.55}
+.res .keywords{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin:0 0 11px;line-height:1.5}
 .res .acts{display:flex;gap:16px;flex-wrap:wrap}
 .res .acts a,.res .acts button{font-family:var(--mono);font-size:10px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--accent);background:none;border:0;padding:0 0 2px;
@@ -295,7 +298,7 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 
   <!-- ============ 01 UPLOAD ============ -->
   <div class="panel" id="p-upload" role="tabpanel" aria-labelledby="tab-upload">
-    <h2>Pick the folder, upload the file there, then record it.</h2>
+    <h2>Choose or create a folder, upload the file, then record it.</h2>
     <div class="backbar" id="backbar" hidden></div>
     <div id="picker"></div>
   </div>
@@ -309,7 +312,7 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
   <div class="panel" id="p-retrieve" role="tabpanel" aria-labelledby="tab-retrieve" hidden>
     <div class="searchwrap">
       <label for="q" class="lab">Search</label>
-      <input type="search" id="q" autocomplete="off" placeholder="Client, topic, person, or what you remember">
+      <input type="search" id="q" autocomplete="off" placeholder="Client, folder, tags, topic, person, or what you remember">
       <p class="eg">Try
         <button type="button" data-eg="ADNOC">ADNOC</button> ·
         <button type="button" data-eg="arabic facilitator">arabic facilitator</button> ·
@@ -335,19 +338,16 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 
 var TOPICS = ["Artificial Intelligence","Leadership","Future of Work","Learning & Skills","Innovation"];
 
-var CLIENT_SUBS = ["01 Commercial","02 Delivery","03 Relationship"];
-
+/* Only these seven main folders are fixed. Every folder below them is created
+   by the operator as needed, including folders inside folders. */
 var LIBS = [
-  { id:"01 Clients",       desc:"files for one specific client",  kind:"client" },
-  { id:"02 Content",       desc:"material we teach and deliver",  kind:"list", folders:TOPICS },
-  { id:"03 Market & Sell", desc:"anything we use to win work",    kind:"list",
-    folders:["Proposal Library","Capability Decks","Case Studies","Pricing & Commercial Templates","Brand Assets"] },
-  { id:"04 People",        desc:"facilitators and team members",  kind:"person" },
-  { id:"05 Research",      desc:"ours and other people's",        kind:"list",
-    folders:["Alliance Thought Leadership","External Research"] },
-  { id:"06 Alliance IP",   desc:"how Alliance itself works",      kind:"list",
-    folders:["Frameworks & Models","Methodologies","Templates & Playbooks","Prompt Library"] },
-  { id:"99 Archive",       desc:"replaced files",                 kind:"list", folders:["Archive"] }
+  { id:"01 Clients",       desc:"files for one specific client", kind:"client" },
+  { id:"02 Content",       desc:"reusable learning and delivery material", kind:"folder" },
+  { id:"03 Market & Sell", desc:"material used to win work", kind:"folder" },
+  { id:"04 People",        desc:"facilitators and team members", kind:"person" },
+  { id:"05 Research",      desc:"research and reference material", kind:"folder" },
+  { id:"06 Alliance IP",   desc:"Alliance frameworks, tools and methods", kind:"folder" },
+  { id:"99 Archive",       desc:"old or replaced material", kind:"folder" }
 ];
 
 var DOCTYPES = [
@@ -375,8 +375,8 @@ var S = {
   people:  [],        // {name, language, url}
   folders: {},        // "path" -> url
   next:    "",
-  dest:    null,      // {library, folderPath, client, person, topicHint, url}
-  nav:     { lib:null, client:null },
+  dest:    null,      // {library, folderPath, client, person, url}
+  nav:     { lib:null, path:"" },
   records: null,      // lazy
   loadingRecords: false,
   lastQuery: "",
@@ -432,11 +432,17 @@ TABS.forEach(function(t){
    TAB 1 — UPLOAD
    ============================================================ */
 
-/* One button that always goes up exactly one level. No link trails. */
+/* One button that always goes up exactly one folder level. */
 function goBack(){
   if (S.dest){ S.dest = null; renderPicker(); return; }
-  if (S.nav.client){ S.nav.client = null; renderPicker(); return; }
-  S.nav = { lib:null, client:null };
+  if (S.nav.path){
+    var parts = pathParts(S.nav.path);
+    parts.pop();
+    S.nav.path = parts.join(" > ");
+    renderPicker();
+    return;
+  }
+  S.nav = { lib:null, path:"" };
   renderPicker();
 }
 
@@ -451,7 +457,7 @@ function backbar(){
   btn.appendChild(el("span", null, "Back"));
   btn.addEventListener("click", goBack);
   b.appendChild(btn);
-  var where = S.nav.lib.id + (S.nav.client ? " \u203A " + S.nav.client : "");
+  var where = S.nav.lib.id + (S.nav.path ? " \u203A " + S.nav.path.replace(/ > /g, " \u203A ") : "");
   b.appendChild(el("div", "here", where));
 }
 
@@ -464,48 +470,76 @@ function pickButton(main, note, fn, cls){
   return b;
 }
 
-function folderNames(L){
-  var out = (L.folders || []).slice();
-  var seen = {};
-  out.forEach(function(name){ seen[key(name)] = true; });
-  var prefix = L.id + " > ";
-
-  [CONFIG.FOLDER_LINKS || {}, S.folders || {}].forEach(function(map){
-    Object.keys(map).forEach(function(path){
-      if (path.indexOf(prefix) !== 0) return;
-      var name = path.slice(prefix.length);
-      if (!name || name.indexOf(" > ") !== -1 || seen[key(name)]) return;
-      seen[key(name)] = true;
-      out.push(name);
-    });
-  });
-
-  var fixedCount = (L.folders || []).length;
-  return out.slice(0, fixedCount).concat(out.slice(fixedCount).sort(function(a,b){
-    return a.localeCompare(b);
-  }));
+function pathParts(path){
+  var value = norm(path);
+  return value ? value.split(" > ").filter(Boolean) : [];
 }
 
-/* Fixed and custom folders directly inside one selected client. */
-function clientFolderNames(client){
-  var out = CLIENT_SUBS.slice();
+function joinPath(parentPath, name){
+  return norm(parentPath) ? norm(parentPath) + " > " + norm(name) : norm(name);
+}
+
+function lastPathName(path){
+  var parts = pathParts(path);
+  return parts.length ? parts[parts.length - 1] : "";
+}
+
+function firstPathName(path){
+  var parts = pathParts(path);
+  return parts.length ? parts[0] : "";
+}
+
+/* Return only direct children of the selected folder. The Folders map can
+   contain any depth, but deeper descendants are shown only after opening their
+   parent. */
+function folderChildren(library, parentPath){
+  var out = [];
   var seen = {};
-  out.forEach(function(name){ seen[key(name)] = true; });
-  var prefix = "01 Clients > " + client + " > ";
+  var prefix = library + " > " + (parentPath ? parentPath + " > " : "");
 
   [CONFIG.FOLDER_LINKS || {}, S.folders || {}].forEach(function(map){
     Object.keys(map).forEach(function(path){
       if (path.indexOf(prefix) !== 0) return;
-      var name = path.slice(prefix.length);
-      if (!name || name.indexOf(" > ") !== -1 || seen[key(name)]) return;
-      seen[key(name)] = true;
-      out.push(name);
+      var rest = path.slice(prefix.length);
+      if (!rest || rest.indexOf(" > ") !== -1 || seen[key(rest)]) return;
+      seen[key(rest)] = true;
+      out.push(rest);
     });
   });
 
-  return out.slice(0, CLIENT_SUBS.length).concat(out.slice(CLIENT_SUBS.length).sort(function(a,b){
-    return a.localeCompare(b);
-  }));
+  /* Keep client/person folders visible even if an older Folders sheet has not
+     yet been rebuilt. */
+  if (!parentPath && library === "01 Clients"){
+    S.clients.forEach(function(c){ if (!seen[key(c.name)]){ seen[key(c.name)] = true; out.push(c.name); } });
+  }
+  if (!parentPath && library === "04 People"){
+    S.people.forEach(function(p){ if (!seen[key(p.name)]){ seen[key(p.name)] = true; out.push(p.name); } });
+  }
+
+  return out.sort(function(a,b){ return a.localeCompare(b); });
+}
+
+/* Backward-compatible helpers retained for tests and maintenance tools. */
+function folderNames(L){ return folderChildren(L.id, ""); }
+function clientFolderNames(client){ return folderChildren("01 Clients", client); }
+
+function childNote(L, parentPath, name){
+  if (!parentPath && L.id === "01 Clients"){
+    var c = S.clients.filter(function(x){ return key(x.name) === key(name); })[0];
+    return c && c.industry ? c.industry : "Open client folder";
+  }
+  if (!parentPath && L.id === "04 People"){
+    var p = S.people.filter(function(x){ return key(x.name) === key(name); })[0];
+    return p && p.language ? p.language : "Open person folder";
+  }
+  return "Open folder";
+}
+
+function destinationExtra(library, folderPath){
+  var first = firstPathName(folderPath);
+  if (library === "01 Clients") return { client:first };
+  if (library === "04 People") return { person:first };
+  return {};
 }
 
 function renderPicker(){
@@ -513,11 +547,11 @@ function renderPicker(){
   var box = $("picker");
   box.innerHTML = "";
 
-  /* level 0 — the seven libraries, real names */
+  /* Level 0 — the seven fixed main folders. */
   if (!S.nav.lib){
     LIBS.forEach(function(L){
       box.appendChild(pickButton(L.id, L.desc, function(){
-        S.nav.lib = L; S.nav.client = null;
+        S.nav = { lib:L, path:"" };
         renderPicker();
       }));
     });
@@ -525,56 +559,39 @@ function renderPicker(){
   }
 
   var L = S.nav.lib;
+  var parentPath = norm(S.nav.path || "");
+  var children = folderChildren(L.id, parentPath);
 
-  /* 01 Clients — client list, then subfolder */
-  if (L.kind === "client"){
-    if (!S.nav.client){
-      if (!S.clients.length){
-        box.appendChild(el("p", "sub", "No clients yet. Add the first one below."));
-      }
-      S.clients.forEach(function(c){
-        box.appendChild(pickButton(c.name, c.industry, function(){
-          S.nav.client = c.name; renderPicker();
-        }));
-      });
-      box.appendChild(pickButton("+ Create a new client folder", null, function(){ newNameForm("client"); }, "add"));
-      return;
-    }
-    var selectedClient = S.nav.client;
-    clientFolderNames(selectedClient).forEach(function(sub){
-      box.appendChild(pickButton(sub, null, function(){
-        choose(L.id, selectedClient + " > " + sub, { client:selectedClient });
-      }));
-    });
-    box.appendChild(pickButton("+ Create a new folder", null, function(){
-      newFolderForm(L, { parentPath:selectedClient, client:selectedClient });
-    }, "add"));
-    return;
+  /* A file may be uploaded only after at least one folder has been chosen.
+     This prevents loose files from collecting in the seven main folders. */
+  if (parentPath){
+    box.appendChild(pickButton("Upload a file to this folder", lastPathName(parentPath), function(){
+      choose(L.id, parentPath, destinationExtra(L.id, parentPath));
+    }, "upload"));
   }
 
-  /* 04 People — person list */
-  if (L.kind === "person"){
-    if (!S.people.length){
-      box.appendChild(el("p", "sub", "No people yet. Add the first one below."));
-    }
-    S.people.forEach(function(p){
-      box.appendChild(pickButton(p.name, p.language, function(){
-        choose(L.id, p.name, { person:p.name });
-      }));
-    });
-    box.appendChild(pickButton("+ Create a new person folder", null, function(){ newNameForm("person"); }, "add"));
-    return;
+  if (!children.length){
+    box.appendChild(el("p", "sub", parentPath
+      ? "No folders inside this folder yet. Create one below, or upload here."
+      : "No folders here yet. Create the first one below."));
   }
 
-  /* everything else — fixed and newly-created folders */
-  folderNames(L).forEach(function(f){
-    box.appendChild(pickButton(f, null, function(){
-      choose(L.id, f, L.id === "02 Content" && TOPICS.indexOf(f) > -1 ? { topicHint:f } : {});
+  children.forEach(function(name){
+    box.appendChild(pickButton(name, childNote(L, parentPath, name), function(){
+      S.nav.path = joinPath(parentPath, name);
+      renderPicker();
     }));
   });
-  box.appendChild(pickButton("+ Create a new folder", null, function(){
-    newFolderForm(L, {});
-  }, "add"));
+
+  if (!parentPath && L.kind === "client"){
+    box.appendChild(pickButton("+ Create a new client folder", null, function(){ newNameForm("client"); }, "add"));
+  } else if (!parentPath && L.kind === "person"){
+    box.appendChild(pickButton("+ Create a new person folder", null, function(){ newNameForm("person"); }, "add"));
+  } else {
+    box.appendChild(pickButton(parentPath ? "+ Create a subfolder here" : "+ Create a folder here", null, function(){
+      newFolderForm(L, { parentPath:parentPath });
+    }, "add"));
+  }
 }
 
 /* ---- create a client or a person, without leaving the page ---- */
@@ -642,7 +659,7 @@ function newNameForm(kind, prefill, confirmed){
   box.appendChild(f2);
 
   var stack = el("div", "stackbtn");
-  var save = el("button", "go", isClient ? "Create client and folders" : "Create person and folder");
+  var save = el("button", "go", isClient ? "Create client folder" : "Create person folder");
   save.type = "button";
   var back = el("button", "go ghost", "Cancel");
   back.type = "button";
@@ -651,8 +668,8 @@ function newNameForm(kind, prefill, confirmed){
   box.appendChild(stack);
 
   box.appendChild(el("p", "note", isClient
-    ? "Creates 01 Clients \u203A <name> with its three subfolders, and adds the client everywhere it is needed."
-    : "Creates 04 People \u203A <name>, and adds the person everywhere they are needed."));
+    ? "Creates one client folder. Open it to create any project folders or subfolders you need."
+    : "Creates one person folder. Open it to create any subfolders you need."));
 
   i1.focus();
 
@@ -668,7 +685,10 @@ function newNameForm(kind, prefill, confirmed){
       return;
     }
 
-    var list = isClient ? S.clients : S.people;
+    var list = (isClient ? S.clients : S.people).slice();
+    folderChildren(isClient ? "01 Clients" : "04 People", "").forEach(function(folderName){
+      if (!list.some(function(x){ return key(x.name) === key(folderName); })) list.push({ name:folderName });
+    });
     var hit = confirmed ? null : nearMatch(name, list);
 
     if (hit && hit.exact){
@@ -683,8 +703,7 @@ function newNameForm(kind, prefill, confirmed){
       var yes = el("button", "go ghost", "Use " + hit.name);
       yes.type = "button"; yes.style.marginTop = "10px";
       yes.addEventListener("click", function(){
-        if (isClient){ S.nav.lib = LIBS[0]; S.nav.client = hit.name; }
-        else { S.nav.lib = LIBS[3]; }
+        S.nav = { lib:isClient ? LIBS[0] : LIBS[3], path:hit.name };
         renderPicker();
       });
       var no = el("button", "go ghost", "No, this is different");
@@ -701,33 +720,36 @@ function newNameForm(kind, prefill, confirmed){
       .then(function(d){
         if (!d || !d.ok) throw new Error(d && d.error ? d.error : "failed");
         if (isClient){
-          S.clients.push({ name:d.name, industry:d.industry, url:d.url });
-          S.clients.sort(function(a,b){ return a.name.localeCompare(b.name); });
+          if (!S.clients.some(function(x){ return key(x.name) === key(d.name); })){
+            S.clients.push({ name:d.name, industry:d.industry, url:d.url });
+            S.clients.sort(function(a,b){ return a.name.localeCompare(b.name); });
+          }
           Object.keys(d.folders || {}).forEach(function(k){ S.folders[k] = d.folders[k]; });
-          S.nav.lib = LIBS[0]; S.nav.client = d.name;
+          S.nav = { lib:LIBS[0], path:d.name };
         } else {
-          S.people.push({ name:d.name, language:d.language, url:d.url });
-          S.people.sort(function(a,b){ return a.name.localeCompare(b.name); });
-          if (d.url) S.folders["04 People > " + d.name] = d.url;
-          S.nav.lib = LIBS[3];
+          if (!S.people.some(function(x){ return key(x.name) === key(d.name); })){
+            S.people.push({ name:d.name, language:d.language, url:d.url });
+            S.people.sort(function(a,b){ return a.name.localeCompare(b.name); });
+          }
+          Object.keys(d.folders || {}).forEach(function(k){ S.folders[k] = d.folders[k]; });
+          S.nav = { lib:LIBS[3], path:d.name };
         }
         renderPicker();
       })
       .catch(function(){
         save.disabled = false;
-        save.textContent = isClient ? "Create client and folders" : "Create person and folder";
+        save.textContent = isClient ? "Create client folder" : "Create person folder";
         f1.classList.add("bad");
         e1.textContent = "Could not create it. Check your connection and try again.";
       });
   });
 }
 
-/* ---- create a direct subfolder inside a main library ---- */
+/* ---- create a folder inside the currently selected folder ---- */
 
 function newFolderForm(L, options, prefill, confirmed){
   options = options || {};
-  var parentPath = norm(options.parentPath || "");
-  var clientName = norm(options.client || parentPath);
+  var parentPath = norm(options.parentPath || S.nav.path || "");
   var box = $("picker");
   box.innerHTML = "";
 
@@ -740,7 +762,7 @@ function newFolderForm(L, options, prefill, confirmed){
   l1.setAttribute("for", "nf");
   var i1 = el("input");
   i1.type = "text"; i1.id = "nf"; i1.autocomplete = "off"; i1.maxLength = 120;
-  i1.placeholder = L.id === "99 Archive" ? "2025 Archive" : "New folder name";
+  i1.placeholder = L.id === "99 Archive" ? "2026 Archive" : "New folder name";
   if (prefill) i1.value = prefill;
   var e1 = el("div", "err");
   f1.appendChild(l1); f1.appendChild(i1); f1.appendChild(e1);
@@ -755,9 +777,9 @@ function newFolderForm(L, options, prefill, confirmed){
   stack.appendChild(save); stack.appendChild(cancel);
   box.appendChild(stack);
 
-  var parentLabel = L.id + (parentPath ? " \u203A " + parentPath : "");
+  var parentLabel = L.id + (parentPath ? " \u203A " + parentPath.replace(/ > /g, " \u203A ") : "");
   box.appendChild(el("p", "note",
-    "Creates " + parentLabel + " \u203A <name> only when it does not already exist. After creation, Drive opens at the parent folder so the new folder is immediately visible."));
+    "Creates the folder inside " + parentLabel + ". You can then upload here or create another folder inside it."));
   i1.focus();
 
   save.addEventListener("click", function(){
@@ -778,25 +800,22 @@ function newFolderForm(L, options, prefill, confirmed){
       return;
     }
 
-    var names = parentPath && L.kind === "client" ? clientFolderNames(parentPath) : folderNames(L);
-    var existing = names.map(function(x){ return { name:x }; });
+    var existing = folderChildren(L.id, parentPath).map(function(x){ return { name:x }; });
     var hit = confirmed ? null : nearMatch(name, existing);
     if (hit && hit.exact){
       f1.classList.add("bad");
-      e1.textContent = '"' + hit.name + '" already exists. Cancel and choose it from the list.';
+      e1.textContent = '"' + hit.name + '" already exists. Cancel and open it from the list.';
       return;
     }
     if (hit){
       warn.style.display = "block";
       warn.innerHTML = "";
-      warn.appendChild(document.createTextNode('"' + hit.name + '" is similar. Use the existing folder or confirm that this is a different one.'));
-      var use = el("button", "go ghost", "Use " + hit.name);
+      warn.appendChild(document.createTextNode('"' + hit.name + '" is similar. Open the existing folder or confirm that this is different.'));
+      var use = el("button", "go ghost", "Open " + hit.name);
       use.type = "button"; use.style.marginTop = "10px";
       use.addEventListener("click", function(){
-        var existingPath = parentPath ? parentPath + " > " + hit.name : hit.name;
-        var extra = parentPath ? { client:clientName } :
-          (L.id === "02 Content" && TOPICS.indexOf(hit.name) > -1 ? { topicHint:hit.name } : {});
-        choose(L.id, existingPath, extra);
+        S.nav.path = joinPath(parentPath, hit.name);
+        renderPicker();
       });
       var create = el("button", "go ghost", "Create a different folder");
       create.type = "button"; create.style.marginTop = "7px";
@@ -811,19 +830,18 @@ function newFolderForm(L, options, prefill, confirmed){
       .then(function(d){
         if (!d || !d.ok) throw new Error(d && d.error ? d.error : "failed");
         Object.keys(d.folders || {}).forEach(function(path){ S.folders[path] = d.folders[path]; });
-        var actualParent = norm(d.parentPath || parentPath);
-        var actualPath = actualParent ? actualParent + " > " + d.name : d.name;
+        var actualPath = norm(d.path || joinPath(d.parentPath || parentPath, d.name));
         if (d.url) S.folders[L.id + " > " + actualPath] = d.url;
-        var extra = actualParent ? { client:actualParent } :
-          (L.id === "02 Content" && TOPICS.indexOf(d.name) > -1 ? { topicHint:d.name } : {});
-        if (actualParent) S.nav.client = actualParent;
-        choose(L.id, actualPath, extra);
+        S.nav = { lib:L, path:actualPath };
+        renderPicker();
       })
-      .catch(function(){
+      .catch(function(err){
         save.disabled = false;
         save.textContent = "Create folder";
         f1.classList.add("bad");
-        e1.textContent = "Could not create the folder. Check your connection and try again.";
+        e1.textContent = (err && err.message && err.message !== "failed")
+          ? err.message.replace(/^Error:\s*/, "")
+          : "Could not create the folder. Check your connection and try again.";
       });
   });
 }
@@ -831,51 +849,55 @@ function newFolderForm(L, options, prefill, confirmed){
 /* ---- destination screen ---- */
 
 function folderTarget(library, folderPath){
-  var L = CONFIG.FOLDER_LINKS || {};
+  var maps = [S.folders || {}, CONFIG.FOLDER_LINKS || {}];
+  var parts = pathParts(folderPath);
 
-  /* Client subfolders open the selected client's parent folder when its live
-     URL is available. Every other destination opens the main library folder. */
-  if (library === "01 Clients"){
-    var parts = String(folderPath || "").split(" > ");
-    if (parts.length > 1){
-      var client = parts[0];
-      var clientUrl = S.folders[library + " > " + client] || L[library + " > " + client] || "";
-      if (clientUrl){
-        return { url:clientUrl, label:client, openPath:parts.slice(1).join(" > ") };
+  /* Prefer the exact selected folder. If an old/stale map lacks that URL,
+     open the deepest known parent and tell the operator what remains. */
+  for (var depth = parts.length; depth >= 0; depth--){
+    var relative = parts.slice(0, depth).join(" > ");
+    var keyPath = library + (relative ? " > " + relative : "");
+    for (var m = 0; m < maps.length; m++){
+      var url = maps[m][keyPath];
+      if (url){
+        return {
+          url:url,
+          label:relative ? lastPathName(relative) : library,
+          openPath:parts.slice(depth).join(" > "),
+          exact:depth === parts.length
+        };
       }
     }
   }
-
-  return {
-    url:S.folders[library] || L[library] || "",
-    label:library,
-    openPath:folderPath
-  };
+  return { url:"", label:library, openPath:folderPath, exact:false };
 }
 
 function folderUrl(library, folderPath){
-  return folderTarget(library, folderPath).url;
+  return folderTarget(library, folderPath || "").url;
 }
 
 function choose(library, folderPath, extra){
   var target = folderTarget(library, folderPath);
   S.dest = Object.assign({ library:library, folderPath:folderPath,
-                           url:target.url, driveLabel:target.label, openPath:target.openPath }, extra || {});
+                           url:target.url, driveLabel:target.label,
+                           openPath:target.openPath, exactFolder:target.exact }, extra || {});
   backbar();
   var box = $("picker");
   box.innerHTML = "";
 
   var d = el("div", "dest");
   var top = el("div", "dest-top");
-  top.appendChild(el("div", "dest-path", library + " \u203A " + folderPath));
+  top.appendChild(el("div", "dest-path", library + " \u203A " + folderPath.replace(/ > /g, " \u203A ")));
   d.appendChild(top);
 
   var body = el("div", "dest-body");
   if (S.dest.url){
-    var a = el("a", "go", "Open " + S.dest.driveLabel + " in Drive");
+    var a = el("a", "go", S.dest.exactFolder ? "Open this folder in Drive" : "Open " + S.dest.driveLabel + " in Drive");
     a.href = S.dest.url; a.target = "_blank"; a.rel = "noopener";
     body.appendChild(a);
-    body.appendChild(el("p", "note", "In Drive, open " + S.dest.openPath.replace(/ > /g, " \u203A ") + " and upload the file there."));
+    body.appendChild(el("p", "note", S.dest.exactFolder
+      ? "Upload the file into the folder that opens."
+      : "In Drive, open " + S.dest.openPath.replace(/ > /g, " \u203A ") + " and upload the file there."));
   } else {
     body.appendChild(el("p", "note", "Open Google Drive, go to " + library + " \u203A " + folderPath.replace(/ > /g, " \u203A ") + ", and upload the file there."));
   }
@@ -890,23 +912,25 @@ function choose(library, folderPath, extra){
   var go = el("button", "go", "Uploaded it \u2014 record it now \u2192");
   go.type = "button";
   go.addEventListener("click", function(){
-    var key = S.dest.library + "|" + S.dest.folderPath;
-    if (S.formFor !== key) renderRecord();
+    var formKey = S.dest.library + "|" + S.dest.folderPath;
+    if (S.formFor !== formKey) renderRecord();
     showTab("record");
   });
   var back = el("button", "go ghost", "Choose a different folder");
   back.type = "button";
-  back.addEventListener("click", function(){ S.dest = null; S.nav = { lib:null, client:null }; renderPicker(); });
+  back.addEventListener("click", function(){ S.dest = null; renderPicker(); });
   stack.appendChild(go); stack.appendChild(back);
   box.appendChild(stack);
 }
 
 function exampleName(library, folderPath){
   var y = new Date().getFullYear();
-  if (library === "01 Clients") return y + " - " + folderPath.split(" > ")[0] + " - Services Agreement - v1";
-  if (library === "04 People")  return y + " - " + folderPath + " - Biography - v1";
-  if (library === "02 Content") return y + " - " + folderPath + " - Participant Workbook - v1";
-  return y + " - " + folderPath + " - Document Name - v1";
+  var first = firstPathName(folderPath);
+  var last = lastPathName(folderPath) || "Document";
+  if (library === "01 Clients") return y + " - " + first + " - Document Name - v1";
+  if (library === "04 People")  return y + " - " + first + " - Biography - v1";
+  if (library === "02 Content") return y + " - " + last + " - Participant Workbook - v1";
+  return y + " - " + last + " - Document Name - v1";
 }
 
 /* ============================================================
@@ -919,7 +943,7 @@ function plan(dest){
   var lib = dest.library;
   return {
     client:   lib === "01 Clients" ? "locked" : (lib === "03 Market & Sell" ? "ask" : "no"),
-    topics:   lib === "02 Content" ? "prefill" : (lib === "04 People" ? "multi" : "ask"),
+    topics:   lib === "04 People" ? "multi" : "ask",
     people:   lib === "04 People" ? "locked"
               : (["01 Clients","02 Content","03 Market & Sell"].indexOf(lib) > -1 ? "ask" : "no"),
     industry: lib === "05 Research" ? "ask" : "no",
@@ -954,7 +978,7 @@ function renderRecord(){
   strip.appendChild(el("div", "p", S.dest.library + " \u203A " + S.dest.folderPath));
   var ch = el("button", null, "change");
   ch.type = "button";
-  ch.addEventListener("click", function(){ S.nav = { lib:null, client:null }; renderPicker(); showTab("upload"); });
+  ch.addEventListener("click", function(){ S.nav = { lib:null, path:"" }; renderPicker(); showTab("upload"); });
   strip.appendChild(ch);
   box.appendChild(strip);
 
@@ -966,6 +990,10 @@ function renderRecord(){
                          "Same as the file name in Drive."));
   form.appendChild(field("desc", "Description", textarea(),
                          "What is it, and when would you use it?"));
+  var tagInput = input("text", "leadership, workshop, proposal, final");
+  tagInput.maxLength = 500;
+  form.appendChild(field("tags", "Tags & keywords", tagInput,
+                         "Add useful words people may search for. Separate them with commas."));
   form.appendChild(field("link", "Drive link", input("url", "Right-click the file \u203A Share \u203A Copy link")));
   form.appendChild(field("doc", "Doc type", docSelect()));
 
@@ -973,12 +1001,11 @@ function renderRecord(){
      People are the exception: expertise is genuinely plural. */
   if (P.topics === "multi"){
     form.appendChild(field("topics", "Expertise", tickList("topic", TOPICS, [])));
-  } else if (P.topics === "prefill" || P.topics === "ask"){
+  } else if (P.topics === "ask"){
     var ts = document.createElement("select");
     ts.id = "topic";
     ts.appendChild(new Option("Choose a topic", ""));
     TOPICS.forEach(function(t){ ts.appendChild(new Option(t, t)); });
-    if (P.topics === "prefill" && S.dest.topicHint) ts.value = S.dest.topicHint;
     form.appendChild(field("topics", "Topic", ts));
   }
 
@@ -992,7 +1019,7 @@ function renderRecord(){
     S.clients.forEach(function(c){ cs.appendChild(new Option(c.name, c.name)); });
     cs.appendChild(new Option("+ Create a new client folder", "__new"));
     cs.addEventListener("change", function(){
-      if (cs.value === "__new"){ cs.value = ""; S.nav = { lib:LIBS[0], client:null }; renderPicker(); showTab("upload"); newNameForm("client"); }
+      if (cs.value === "__new"){ cs.value = ""; S.nav = { lib:LIBS[0], path:"" }; renderPicker(); showTab("upload"); newNameForm("client"); }
     });
     form.appendChild(field("client", "Client", cs));
   }
@@ -1137,6 +1164,14 @@ function submitRecord(ev){
   if (!$("title").value.trim()){ bad("title", "Enter the title. It must match the file name in Drive."); n++; } else clr("title");
   if ($("desc").value.trim().length < 20){ bad("desc", "One or two sentences \u2014 at least 20 characters. This is what finds the file again."); n++; } else clr("desc");
 
+  var tagItems = $("tags").value.split(",").map(norm).filter(Boolean).filter(function(v, i, a){
+    return a.map(key).indexOf(key(v)) === i;
+  });
+  var tags = tagItems.join(", ");
+  if (!tagItems.length){ bad("tags", "Add at least one useful tag or keyword."); n++; }
+  else if (tags.length > 500){ bad("tags", "Keep Tags & Keywords to 500 characters or fewer."); n++; }
+  else clr("tags");
+
   var link = $("link").value.trim();
   if (!link){ bad("link", "Paste the Drive link \u2014 right-click the file \u203A Share \u203A Copy link."); n++; }
   else if (!/^https:\/\/(drive|docs)\.google\.com\//.test(link)){ bad("link", "That is not a Google Drive link. Right-click the file in Drive, choose Share, then Copy link."); n++; }
@@ -1179,6 +1214,7 @@ function submitRecord(ev){
   var payload = {
     title:       $("title").value.trim(),
     description: $("desc").value.trim(),
+    tags:        tags,
     driveLink:   link,
     docType:     $("doc").value,
     topics:      topics.join(", "),
@@ -1223,7 +1259,7 @@ function recordDone(id, p){
 
   var dl = document.createElement("dl");
   dl.style.margin = "0";
-  [["Title", p.title], ["Folder", p.library + " \u203A " + p.folderPath], ["Type", p.docType]]
+  [["Title", p.title], ["Folder", p.library + " \u203A " + p.folderPath], ["Type", p.docType], ["Tags", p.tags]]
     .forEach(function(r){
       var row = el("div", "row");
       row.appendChild(el("dt", null, r[0]));
@@ -1238,7 +1274,7 @@ function recordDone(id, p){
   again.addEventListener("click", renderRecord);
   var another = el("button", "go ghost", "Upload something else");
   another.type = "button";
-  another.addEventListener("click", function(){ S.nav = { lib:null, client:null }; renderPicker(); showTab("upload"); });
+  another.addEventListener("click", function(){ S.nav = { lib:null, path:"" }; renderPicker(); showTab("upload"); });
   var find = el("button", "go ghost", "Find a file");
   find.type = "button";
   find.addEventListener("click", function(){ showTab("retrieve"); });
@@ -1350,7 +1386,7 @@ function parseQuery(q){
   return { facets: found, free: free };
 }
 
-var W = { title:10, topics:8, client:9, people:8, docType:6, industry:5,
+var W = { title:10, tags:9, topics:8, client:9, people:8, docType:6, industry:5,
           description:3, folderPath:2, library:1, language:4 };
 
 function txt(r, f){
@@ -1580,6 +1616,7 @@ function resultCard(r){
   c.appendChild(el("div", "meta", bits.filter(Boolean).join("  \u00B7  ")));
 
   if (r.description) c.appendChild(el("p", "desc", r.description));
+  if (r.tags) c.appendChild(el("p", "keywords", "Tags: " + r.tags));
 
   var acts = el("div", "acts");
   if (safeLink(r.driveLink)){
@@ -1657,7 +1694,9 @@ boot();
 window.__AKR = { S: S, safeLink: safeLink, parseQuery: parseQuery, runSearch: runSearch, relatedTo: relatedTo,
                  buildFacets: buildFacets, plan: plan, nearMatch: nearMatch, showTab: showTab,
                  doSearch: doSearch, renderRecord: renderRecord, renderPicker: renderPicker,
-                 folderNames: folderNames, clientFolderNames: clientFolderNames, newFolderForm: newFolderForm,
+                 folderNames: folderNames, clientFolderNames: clientFolderNames,
+                 folderChildren: folderChildren, pathParts: pathParts, joinPath: joinPath,
+                 destinationExtra: destinationExtra, newFolderForm: newFolderForm,
                  folderTarget: folderTarget, folderUrl: folderUrl };
 })();
 </script>
