@@ -6,10 +6,11 @@
 <title>Alliance Knowledge Repository</title>
 
 <!-- ==================================================================
-     SETTINGS — the only part of this file anyone ever edits.
+     SETTINGS
 
-     Moving to a different Google Drive later? You only change
-     FOLDER_LINKS below. See "MOVING TO A NEW DRIVE" in SETUP.txt.
+     ENDPOINT and SHEET_URL connect the page to Apps Script and the Sheet.
+     FOLDER_LINKS contains seven main-folder offline fallbacks; the live
+     Folders tab is preferred during normal operation.
      ================================================================== -->
 <script>
 const CONFIG = {
@@ -17,41 +18,18 @@ const CONFIG = {
   ENDPOINT:  "https://script.google.com/macros/s/AKfycbzyEZh8SD8LCle2LNtXtYfzW1tjAF2lk9tOVUWw30BHX_BvBHP9xcMpMMTNcbpkGJQ/exec",
   SHEET_URL: "https://docs.google.com/spreadsheets/d/1ShGnzUGe6k6ZxQTpPDyMa1p3iDElr6Waz_HQyip8k48/edit",
 
-  /* Every folder's Drive link. Replace all of these when you move to a
-     different Drive — nothing else in this file needs to change.
-     01 Clients and 04 People point at the parent folder on purpose, so
-     people can walk into the client or person they just created. */
+  /* Main-folder links only. The live Apps Script response is used first;
+     these are offline fallbacks. Every upload opens the selected library's
+     main folder, where the user can choose the existing or newly-created
+     subfolder and upload the file. */
   FOLDER_LINKS: {
-    "01 Clients":                                    "https://drive.google.com/drive/folders/1h_QTToB7McGqbVpbTzCBgvdOH--TIhUd",
-
-    "02 Content":                                    "https://drive.google.com/drive/folders/1ul98j1cuVhHgb7Cz5f6rIWVM8XSRSsq9",
-    "02 Content > Artificial Intelligence":          "https://drive.google.com/drive/folders/12whw2SnmOZc2MYrzHQW-CqPRs4xW1lg9",
-    "02 Content > Leadership":                       "https://drive.google.com/drive/folders/1WR0JuFDFd24wiAw5-O7o6NfAI1S6eY0o",
-    "02 Content > Future of Work":                   "https://drive.google.com/drive/folders/1OhSsgjZtXhUXOJ8cy4TPOJFy_F8v52NS",
-    "02 Content > Learning & Skills":                "https://drive.google.com/drive/folders/1JPFCwJNHM_H0m1YpSQsU6XHfj9Ym9qlB",
-    "02 Content > Innovation":                       "https://drive.google.com/drive/folders/1wIKA4U69OZbz0WIurCg5YUIo2lpv7GC5",
-
-    "03 Market & Sell":                              "https://drive.google.com/drive/folders/1Ck6imz-C3ODVF-srS2q9zC7dCE0wUmST",
-    "03 Market & Sell > Proposal Library":           "https://drive.google.com/drive/folders/1l01B_OiGivxwLWamZbXfSNrfIJuHIkxy",
-    "03 Market & Sell > Capability Decks":           "https://drive.google.com/drive/folders/1zq69cAeOXycHghpc46dpO0OOTWgo6G6b",
-    "03 Market & Sell > Case Studies":               "https://drive.google.com/drive/folders/13l4i0XpHXtlD1gk75RD-A7IU5ogl3ZFn",
-    "03 Market & Sell > Pricing & Commercial Templates": "https://drive.google.com/drive/folders/1DOID0QAtHul6f786cm4pi3oSrBEagKdD",
-    "03 Market & Sell > Brand Assets":               "https://drive.google.com/drive/folders/1SXFNkGO8bfUfH6FD1doxgS3bOnYWQWkq",
-
-    "04 People":                                     "https://drive.google.com/drive/folders/19diQ-jBWxo5ftmxWgh68eq2BpcbwTdMb",
-
-    "05 Research":                                   "https://drive.google.com/drive/folders/1sSX5uyYBHGu_p5KFouyXWNVzUNJrRpLo",
-    "05 Research > Alliance Thought Leadership":     "https://drive.google.com/drive/folders/1Ff5_hqDlh7F931G7M-yiw27VVTMLmKZK",
-    "05 Research > External Research":               "https://drive.google.com/drive/folders/1821-MIHsmKuSQLG4F3UE-Yi-1PwhZuvZ",
-
-    "06 Alliance IP":                                "https://drive.google.com/drive/folders/1cKmxJ9EZuK88zcWWlyyU8LTWKEMjwv1j",
-    "06 Alliance IP > Frameworks & Models":          "https://drive.google.com/drive/folders/11HYJqUlloXUJq0yjN49WQVmzWoILsvYX",
-    "06 Alliance IP > Methodologies":                "https://drive.google.com/drive/folders/1IdvcqV9HxGbEnEw0kI3n55_k2NROeX0v",
-    "06 Alliance IP > Templates & Playbooks":        "https://drive.google.com/drive/folders/1kUP2Ivro_7Dm4nrbEXGC0jlIIUZI-Hck",
-    "06 Alliance IP > Prompt Library":               "https://drive.google.com/drive/folders/1s20cxxaUiWfC2YbQ8Q0MUmq84bnIBiiQ",
-
-    "99 Archive":                                    "https://drive.google.com/drive/folders/1l9fH0SQxY8WfhXr8T4J833Pz6GS9YAm6",
-    "99 Archive > Archive":                          "https://drive.google.com/drive/folders/1l9fH0SQxY8WfhXr8T4J833Pz6GS9YAm6"
+    "01 Clients":       "https://drive.google.com/drive/folders/1h_QTToB7McGqbVpbTzCBgvdOH--TIhUd",
+    "02 Content":       "https://drive.google.com/drive/folders/1ul98j1cuVhHgb7Cz5f6rIWVM8XSRSsq9",
+    "03 Market & Sell": "https://drive.google.com/drive/folders/1Ck6imz-C3ODVF-srS2q9zC7dCE0wUmST",
+    "04 People":        "https://drive.google.com/drive/folders/19diQ-jBWxo5ftmxWgh68eq2BpcbwTdMb",
+    "05 Research":      "https://drive.google.com/drive/folders/1sSX5uyYBHGu_p5KFouyXWNVzUNJrRpLo",
+    "06 Alliance IP":   "https://drive.google.com/drive/folders/1cKmxJ9EZuK88zcWWlyyU8LTWKEMjwv1j",
+    "99 Archive":       "https://drive.google.com/drive/folders/1l9fH0SQxY8WfhXr8T4J833Pz6GS9YAm6"
   }
 };
 </script>
@@ -369,7 +347,7 @@ var LIBS = [
     folders:["Alliance Thought Leadership","External Research"] },
   { id:"06 Alliance IP",   desc:"how Alliance itself works",      kind:"list",
     folders:["Frameworks & Models","Methodologies","Templates & Playbooks","Prompt Library"] },
-  { id:"99 Archive",       desc:"replaced files",                 kind:"single", folders:["Archive"] }
+  { id:"99 Archive",       desc:"replaced files",                 kind:"list", folders:["Archive"] }
 ];
 
 var DOCTYPES = [
@@ -486,6 +464,50 @@ function pickButton(main, note, fn, cls){
   return b;
 }
 
+function folderNames(L){
+  var out = (L.folders || []).slice();
+  var seen = {};
+  out.forEach(function(name){ seen[key(name)] = true; });
+  var prefix = L.id + " > ";
+
+  [CONFIG.FOLDER_LINKS || {}, S.folders || {}].forEach(function(map){
+    Object.keys(map).forEach(function(path){
+      if (path.indexOf(prefix) !== 0) return;
+      var name = path.slice(prefix.length);
+      if (!name || name.indexOf(" > ") !== -1 || seen[key(name)]) return;
+      seen[key(name)] = true;
+      out.push(name);
+    });
+  });
+
+  var fixedCount = (L.folders || []).length;
+  return out.slice(0, fixedCount).concat(out.slice(fixedCount).sort(function(a,b){
+    return a.localeCompare(b);
+  }));
+}
+
+/* Fixed and custom folders directly inside one selected client. */
+function clientFolderNames(client){
+  var out = CLIENT_SUBS.slice();
+  var seen = {};
+  out.forEach(function(name){ seen[key(name)] = true; });
+  var prefix = "01 Clients > " + client + " > ";
+
+  [CONFIG.FOLDER_LINKS || {}, S.folders || {}].forEach(function(map){
+    Object.keys(map).forEach(function(path){
+      if (path.indexOf(prefix) !== 0) return;
+      var name = path.slice(prefix.length);
+      if (!name || name.indexOf(" > ") !== -1 || seen[key(name)]) return;
+      seen[key(name)] = true;
+      out.push(name);
+    });
+  });
+
+  return out.slice(0, CLIENT_SUBS.length).concat(out.slice(CLIENT_SUBS.length).sort(function(a,b){
+    return a.localeCompare(b);
+  }));
+}
+
 function renderPicker(){
   backbar();
   var box = $("picker");
@@ -496,7 +518,6 @@ function renderPicker(){
     LIBS.forEach(function(L){
       box.appendChild(pickButton(L.id, L.desc, function(){
         S.nav.lib = L; S.nav.client = null;
-        if (L.kind === "single") return choose(L.id, L.folders[0]);
         renderPicker();
       }));
     });
@@ -516,14 +537,18 @@ function renderPicker(){
           S.nav.client = c.name; renderPicker();
         }));
       });
-      box.appendChild(pickButton("+ Add a new client", null, function(){ newNameForm("client"); }, "add"));
+      box.appendChild(pickButton("+ Create a new client folder", null, function(){ newNameForm("client"); }, "add"));
       return;
     }
-    CLIENT_SUBS.forEach(function(sub){
+    var selectedClient = S.nav.client;
+    clientFolderNames(selectedClient).forEach(function(sub){
       box.appendChild(pickButton(sub, null, function(){
-        choose(L.id, S.nav.client + " > " + sub, { client:S.nav.client });
+        choose(L.id, selectedClient + " > " + sub, { client:selectedClient });
       }));
     });
+    box.appendChild(pickButton("+ Create a new folder", null, function(){
+      newFolderForm(L, { parentPath:selectedClient, client:selectedClient });
+    }, "add"));
     return;
   }
 
@@ -537,16 +562,19 @@ function renderPicker(){
         choose(L.id, p.name, { person:p.name });
       }));
     });
-    box.appendChild(pickButton("+ Add a new person", null, function(){ newNameForm("person"); }, "add"));
+    box.appendChild(pickButton("+ Create a new person folder", null, function(){ newNameForm("person"); }, "add"));
     return;
   }
 
-  /* everything else — plain folder list */
-  L.folders.forEach(function(f){
+  /* everything else — fixed and newly-created folders */
+  folderNames(L).forEach(function(f){
     box.appendChild(pickButton(f, null, function(){
-      choose(L.id, f, L.id === "02 Content" ? { topicHint:f } : {});
+      choose(L.id, f, L.id === "02 Content" && TOPICS.indexOf(f) > -1 ? { topicHint:f } : {});
     }));
   });
+  box.appendChild(pickButton("+ Create a new folder", null, function(){
+    newFolderForm(L, {});
+  }, "add"));
 }
 
 /* ---- create a client or a person, without leaving the page ---- */
@@ -694,22 +722,145 @@ function newNameForm(kind, prefill, confirmed){
   });
 }
 
+/* ---- create a direct subfolder inside a main library ---- */
+
+function newFolderForm(L, options, prefill, confirmed){
+  options = options || {};
+  var parentPath = norm(options.parentPath || "");
+  var clientName = norm(options.client || parentPath);
+  var box = $("picker");
+  box.innerHTML = "";
+
+  var warn = el("div", "warnbox");
+  warn.style.display = "none";
+  box.appendChild(warn);
+
+  var f1 = el("div", "f");
+  var l1 = el("label", null, "New folder name");
+  l1.setAttribute("for", "nf");
+  var i1 = el("input");
+  i1.type = "text"; i1.id = "nf"; i1.autocomplete = "off"; i1.maxLength = 120;
+  i1.placeholder = L.id === "99 Archive" ? "2025 Archive" : "New folder name";
+  if (prefill) i1.value = prefill;
+  var e1 = el("div", "err");
+  f1.appendChild(l1); f1.appendChild(i1); f1.appendChild(e1);
+  box.appendChild(f1);
+
+  var stack = el("div", "stackbtn");
+  var save = el("button", "go", "Create folder");
+  save.type = "button";
+  var cancel = el("button", "go ghost", "Cancel");
+  cancel.type = "button";
+  cancel.addEventListener("click", renderPicker);
+  stack.appendChild(save); stack.appendChild(cancel);
+  box.appendChild(stack);
+
+  var parentLabel = L.id + (parentPath ? " \u203A " + parentPath : "");
+  box.appendChild(el("p", "note",
+    "Creates " + parentLabel + " \u203A <name> only when it does not already exist. After creation, Drive opens at the parent folder so the new folder is immediately visible."));
+  i1.focus();
+
+  save.addEventListener("click", function(){
+    var name = norm(i1.value);
+    f1.classList.remove("bad");
+    warn.style.display = "none";
+
+    if (!name){
+      f1.classList.add("bad");
+      e1.textContent = "Type the folder name.";
+      i1.focus();
+      return;
+    }
+    if (name.indexOf(">") !== -1){
+      f1.classList.add("bad");
+      e1.textContent = 'Folder names cannot contain the ">" character.';
+      i1.focus();
+      return;
+    }
+
+    var names = parentPath && L.kind === "client" ? clientFolderNames(parentPath) : folderNames(L);
+    var existing = names.map(function(x){ return { name:x }; });
+    var hit = confirmed ? null : nearMatch(name, existing);
+    if (hit && hit.exact){
+      f1.classList.add("bad");
+      e1.textContent = '"' + hit.name + '" already exists. Cancel and choose it from the list.';
+      return;
+    }
+    if (hit){
+      warn.style.display = "block";
+      warn.innerHTML = "";
+      warn.appendChild(document.createTextNode('"' + hit.name + '" is similar. Use the existing folder or confirm that this is a different one.'));
+      var use = el("button", "go ghost", "Use " + hit.name);
+      use.type = "button"; use.style.marginTop = "10px";
+      use.addEventListener("click", function(){
+        var existingPath = parentPath ? parentPath + " > " + hit.name : hit.name;
+        var extra = parentPath ? { client:clientName } :
+          (L.id === "02 Content" && TOPICS.indexOf(hit.name) > -1 ? { topicHint:hit.name } : {});
+        choose(L.id, existingPath, extra);
+      });
+      var create = el("button", "go ghost", "Create a different folder");
+      create.type = "button"; create.style.marginTop = "7px";
+      create.addEventListener("click", function(){ newFolderForm(L, options, name, true); });
+      warn.appendChild(use); warn.appendChild(create);
+      return;
+    }
+
+    save.disabled = true;
+    save.textContent = "Creating\u2026";
+    api("addFolder", { library:L.id, parentPath:parentPath, name:name })
+      .then(function(d){
+        if (!d || !d.ok) throw new Error(d && d.error ? d.error : "failed");
+        Object.keys(d.folders || {}).forEach(function(path){ S.folders[path] = d.folders[path]; });
+        var actualParent = norm(d.parentPath || parentPath);
+        var actualPath = actualParent ? actualParent + " > " + d.name : d.name;
+        if (d.url) S.folders[L.id + " > " + actualPath] = d.url;
+        var extra = actualParent ? { client:actualParent } :
+          (L.id === "02 Content" && TOPICS.indexOf(d.name) > -1 ? { topicHint:d.name } : {});
+        if (actualParent) S.nav.client = actualParent;
+        choose(L.id, actualPath, extra);
+      })
+      .catch(function(){
+        save.disabled = false;
+        save.textContent = "Create folder";
+        f1.classList.add("bad");
+        e1.textContent = "Could not create the folder. Check your connection and try again.";
+      });
+  });
+}
+
 /* ---- destination screen ---- */
 
-function folderUrl(library, folderPath){
+function folderTarget(library, folderPath){
   var L = CONFIG.FOLDER_LINKS || {};
-  /* Clients and people land on the library folder so they can walk into the
-     one they just created, rather than a link that did not exist a minute ago. */
-  if (library === "01 Clients" || library === "04 People"){
-    return L[library] || S.folders[library] || "";
+
+  /* Client subfolders open the selected client's parent folder when its live
+     URL is available. Every other destination opens the main library folder. */
+  if (library === "01 Clients"){
+    var parts = String(folderPath || "").split(" > ");
+    if (parts.length > 1){
+      var client = parts[0];
+      var clientUrl = S.folders[library + " > " + client] || L[library + " > " + client] || "";
+      if (clientUrl){
+        return { url:clientUrl, label:client, openPath:parts.slice(1).join(" > ") };
+      }
+    }
   }
-  return L[library + " > " + folderPath] || S.folders[library + " > " + folderPath] ||
-         L[library] || S.folders[library] || "";
+
+  return {
+    url:S.folders[library] || L[library] || "",
+    label:library,
+    openPath:folderPath
+  };
+}
+
+function folderUrl(library, folderPath){
+  return folderTarget(library, folderPath).url;
 }
 
 function choose(library, folderPath, extra){
+  var target = folderTarget(library, folderPath);
   S.dest = Object.assign({ library:library, folderPath:folderPath,
-                           url: folderUrl(library, folderPath) }, extra || {});
+                           url:target.url, driveLabel:target.label, openPath:target.openPath }, extra || {});
   backbar();
   var box = $("picker");
   box.innerHTML = "";
@@ -721,11 +872,12 @@ function choose(library, folderPath, extra){
 
   var body = el("div", "dest-body");
   if (S.dest.url){
-    var a = el("a", "go", "Open this folder in Drive");
+    var a = el("a", "go", "Open " + S.dest.driveLabel + " in Drive");
     a.href = S.dest.url; a.target = "_blank"; a.rel = "noopener";
     body.appendChild(a);
+    body.appendChild(el("p", "note", "In Drive, open " + S.dest.openPath.replace(/ > /g, " \u203A ") + " and upload the file there."));
   } else {
-    body.appendChild(el("p", "note", "Open Google Drive and go to " + library + " \u203A " + folderPath + "."));
+    body.appendChild(el("p", "note", "Open Google Drive, go to " + library + " \u203A " + folderPath.replace(/ > /g, " \u203A ") + ", and upload the file there."));
   }
 
   var rn = el("p", "rename", "Rename the file first:");
@@ -735,7 +887,7 @@ function choose(library, folderPath, extra){
   box.appendChild(d);
 
   var stack = el("div", "stackbtn");
-  var go = el("button", "go", "Uploaded it? Record it now \u2192");
+  var go = el("button", "go", "Uploaded it \u2014 record it now \u2192");
   go.type = "button";
   go.addEventListener("click", function(){
     var key = S.dest.library + "|" + S.dest.folderPath;
@@ -838,7 +990,7 @@ function renderRecord(){
     cs.id = "client";
     cs.appendChild(new Option("Choose a client", ""));
     S.clients.forEach(function(c){ cs.appendChild(new Option(c.name, c.name)); });
-    cs.appendChild(new Option("+ Add a new client", "__new"));
+    cs.appendChild(new Option("+ Create a new client folder", "__new"));
     cs.addEventListener("change", function(){
       if (cs.value === "__new"){ cs.value = ""; S.nav = { lib:LIBS[0], client:null }; renderPicker(); showTab("upload"); newNameForm("client"); }
     });
@@ -1504,7 +1656,9 @@ boot();
 
 window.__AKR = { S: S, safeLink: safeLink, parseQuery: parseQuery, runSearch: runSearch, relatedTo: relatedTo,
                  buildFacets: buildFacets, plan: plan, nearMatch: nearMatch, showTab: showTab,
-                 doSearch: doSearch, renderRecord: renderRecord, renderPicker: renderPicker };
+                 doSearch: doSearch, renderRecord: renderRecord, renderPicker: renderPicker,
+                 folderNames: folderNames, clientFolderNames: clientFolderNames, newFolderForm: newFolderForm,
+                 folderTarget: folderTarget, folderUrl: folderUrl };
 })();
 </script>
 </body>
