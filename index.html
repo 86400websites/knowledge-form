@@ -181,6 +181,67 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 .seg input:checked + span{background:var(--accent);color:#fff}
 .seg input:focus-visible + span{box-shadow:inset 0 0 0 2px var(--ink)}
 
+
+/* ---------- tappable choices and keyword browser ---------- */
+.choicebox,.meta-browser{border:1px solid var(--rule);border-radius:6px;background:var(--paper);padding:13px}
+.f.bad .choicebox,.f.bad .meta-browser{border-color:var(--warn)}
+.choice-grid{display:flex;flex-wrap:wrap;gap:8px}
+.choice{display:inline-flex;align-items:center;gap:6px;min-height:38px;padding:8px 11px;
+  border:1px solid var(--rule);border-radius:999px;background:var(--surface);color:var(--ink);
+  cursor:pointer;font-family:var(--sans);font-size:13.5px;line-height:1.25;text-align:left;
+  transition:border-color .15s ease,background .15s ease,color .15s ease,transform .08s ease}
+.choice:hover{border-color:var(--accent);background:var(--paper)}
+.choice:active{transform:translateY(1px)}
+.choice[aria-pressed=true]{background:var(--accent);border-color:var(--accent);color:#fff}
+.choice[aria-pressed=true]::before{content:"\2713";font-size:11px;font-weight:700}
+.choice:focus-visible{outline:none;box-shadow:0 0 0 3px rgba(0,110,138,.14)}
+
+.selected-box{background:var(--surface);border:1px solid var(--rule-soft);border-radius:5px;padding:10px;margin-bottom:12px}
+.selected-title{font-family:var(--mono);font-size:9.5px;letter-spacing:.09em;text-transform:uppercase;
+  color:var(--ink-faint);margin-bottom:7px}
+.selected-list{display:flex;flex-wrap:wrap;gap:6px}
+.selected-pill{display:inline-flex;align-items:center;gap:6px;border:0;border-radius:999px;
+  background:var(--accent);color:#fff;padding:5px 8px;font-family:var(--sans);font-size:12px;cursor:pointer}
+.selected-pill span{opacity:.72;font-size:13px}
+.selected-pill:hover{background:var(--accent-deep)}
+
+.meta-tabs{display:grid;grid-template-columns:1fr 1fr;gap:7px}
+@media (max-width:440px){.meta-tabs{grid-template-columns:1fr 1fr;gap:6px}.meta-tab{font-size:12px;padding:8px}}
+.meta-tab{display:flex;align-items:center;justify-content:space-between;gap:8px;min-height:42px;
+  padding:9px 11px;border:1px solid var(--rule);border-radius:5px;background:var(--surface);
+  color:var(--ink);cursor:pointer;font-family:var(--sans);font-size:13px;text-align:left}
+.meta-tab:hover{border-color:var(--accent);background:var(--paper)}
+.meta-tab[aria-expanded=true]{border-color:var(--accent);background:var(--paper);color:var(--accent);font-weight:600}
+.meta-tab b{font-family:var(--mono);font-size:9px;font-weight:600;background:var(--paper);
+  border:1px solid var(--rule);border-radius:999px;min-width:20px;padding:2px 5px;text-align:center;color:var(--ink-soft)}
+.meta-tab[aria-expanded=true] b{border-color:rgba(0,110,138,.25);color:var(--accent)}
+.meta-panel{margin-top:9px;border:1px solid var(--rule-soft);border-radius:5px;padding:12px;background:var(--surface)}
+.meta-panel-title{font-size:13.5px;font-weight:600;margin:0 0 9px}
+.meta-note{font-family:var(--mono);font-size:10px;color:var(--ink-faint);line-height:1.5;margin:0 0 9px}
+.inline-add{display:flex;gap:7px;margin-top:10px}
+.inline-add input{min-width:0;flex:1;font-size:14px;padding:9px 10px;background:var(--paper)}
+.mini{flex:none;border:1px solid var(--accent);border-radius:5px;background:var(--paper);color:var(--accent);
+  padding:0 12px;min-height:40px;font-family:var(--sans);font-size:13px;cursor:pointer}
+.mini:hover{background:var(--accent);color:#fff}
+.inline-msg{font-family:var(--mono);font-size:10px;line-height:1.5;margin-top:7px;color:var(--ink-faint)}
+.inline-msg.badmsg{color:var(--warn)}
+.custom-keyword{margin-top:12px;padding-top:12px;border-top:1px solid var(--rule-soft)}
+.custom-keyword .custom-title{font-size:13px;font-weight:600;margin-bottom:7px}
+
+.retrieve-help{font-size:13px;color:var(--ink-soft);margin:8px 0 0;line-height:1.5}
+.retrieve-tools{margin-top:18px}
+.filter-section{border-top:1px solid var(--rule-soft);padding-top:16px;margin-top:16px}
+.filter-section:first-child{border-top:0;padding-top:0;margin-top:0}
+.filter-heading{display:flex;align-items:baseline;justify-content:space-between;gap:12px;margin-bottom:9px}
+.filter-heading strong{font-size:14px;font-weight:600}
+.filter-heading span{font-family:var(--mono);font-size:9.5px;color:var(--ink-faint)}
+.quick-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+@media (max-width:440px){.quick-tabs{grid-template-columns:1fr 1fr;gap:6px}.quick-tabs .meta-tab{font-size:12px;padding:8px}}
+.quick-panel{margin-top:9px;border:1px solid var(--rule-soft);border-radius:5px;padding:12px;background:var(--surface)}
+.filter-reset{display:inline-flex;border:0;background:none;color:var(--accent);padding:0;margin-top:10px;
+  font-family:var(--mono);font-size:10px;letter-spacing:.05em;text-transform:uppercase;cursor:pointer}
+.filter-reset:hover{text-decoration:underline}
+
 /* ---------- buttons ---------- */
 .go{width:100%;min-height:50px;background:var(--accent);color:#fff;border:0;border-radius:5px;
   font-family:var(--sans);font-size:15.5px;font-weight:500;cursor:pointer;
@@ -312,14 +373,15 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
   <div class="panel" id="p-retrieve" role="tabpanel" aria-labelledby="tab-retrieve" hidden>
     <div class="searchwrap">
       <label for="q" class="lab">Search</label>
-      <input type="search" id="q" autocomplete="off" placeholder="Client, folder, tags, topic, person, or what you remember">
+      <input type="search" id="q" autocomplete="off" placeholder="Type anything you remember about the file">
+      <p class="retrieve-help">Search normally, or tap the filters below.</p>
       <p class="eg">Try
         <button type="button" data-eg="ADNOC">ADNOC</button> ·
         <button type="button" data-eg="arabic facilitator">arabic facilitator</button> ·
-        <button type="button" data-eg="healthcare proposal">healthcare proposal</button> ·
-        <button type="button" data-eg="ai workbook">ai workbook</button>
+        <button type="button" data-eg="leadership workbook">leadership workbook</button>
       </p>
     </div>
+    <div class="retrieve-tools" id="retrieveFilters"></div>
     <div id="readback"></div>
     <div id="results"></div>
   </div>
@@ -336,7 +398,8 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
    VOCABULARY
    ============================================================ */
 
-var TOPICS = ["Artificial Intelligence","Leadership","Future of Work","Learning & Skills","Innovation"];
+var DEFAULT_TOPICS = ["Artificial Intelligence","Leadership","Future of Work","Learning & Skills","Innovation"];
+var TOPICS = DEFAULT_TOPICS.slice();
 
 /* Only these seven main folders are fixed. Every folder below them is created
    by the operator as needed, including folders inside folders. */
@@ -364,7 +427,41 @@ DOCTYPES.forEach(function(g){ g[1].forEach(function(d){ FLAT_DOCTYPES.push(d); }
 
 var INDUSTRIES = ["Government","Healthcare","Banking & Finance","Education","Energy",
                   "Technology","Manufacturing","Retail","Logistics","Other"];
-var LANGUAGES = ["English","Arabic"];
+var LANGUAGES = ["English","Arabic","English & Arabic","French","Multiple Languages","Other Language"];
+
+/* Stage/status is deliberately not included. Status already exists in the
+   index and the approved user-facing taxonomy should stay simple. */
+var TAG_GROUPS = [
+  { key:"topic", label:"Topic", values:[] },
+  { key:"purpose", label:"What is it for?", values:[
+    "Client Delivery","Learning Material","Sales Material","Marketing Material","Research",
+    "Alliance IP","Internal Use","Planning","Reporting","Proposal Support"
+  ]},
+  { key:"audience", label:"Who is it for?", values:[
+    "Executives","Senior Leaders","Managers","Employees","Participants","Facilitators",
+    "Coaches","HR","Learning & Development","Client Team","Internal Team"
+  ]},
+  { key:"usage", label:"How is it used?", values:[
+    "Workshop","Learning Programme","Presentation","Coaching","Keynote","Webinar",
+    "Meeting","Offsite","Self-Paced Learning","Train the Trainer"
+  ]},
+  { key:"features", label:"Style and features", values:[
+    "Editable","Print Ready","Presentation Ready","Client Ready","Interactive","Visual",
+    "One Page","Executive Summary","Customisable","Reusable","Practical","Strategic"
+  ]},
+  { key:"region", label:"Region", values:["UAE","Saudi Arabia","GCC","Middle East","MENA","Global"] },
+  { key:"language", label:"Language", values:LANGUAGES.slice() }
+];
+var TAG_GROUP_MAP = {};
+TAG_GROUPS.forEach(function(g){ TAG_GROUP_MAP[g.key] = g; });
+
+var QUICK_FILTERS = [
+  { key:"client", label:"Client" },
+  { key:"docType", label:"Document Type" },
+  { key:"fileFormat", label:"File Format" },
+  { key:"fileSize", label:"File Size" },
+  { key:"year", label:"Year" }
+];
 
 /* ============================================================
    STATE
@@ -373,6 +470,7 @@ var LANGUAGES = ["English","Arabic"];
 var S = {
   clients: [],        // {name, industry, url}
   people:  [],        // {name, language, url}
+  topics:  DEFAULT_TOPICS.slice(),
   folders: {},        // "path" -> url
   next:    "",
   dest:    null,      // {library, folderPath, client, person, url}
@@ -380,7 +478,9 @@ var S = {
   records: null,      // lazy
   loadingRecords: false,
   lastQuery: "",
-  removed: []         // facets the user dismissed
+  removed: [],        // typed facets the user dismissed
+  record: null,
+  retrieve: { filters:[], activeQuick:"", activeTag:"" }
 };
 
 function $(id){ return document.getElementById(id); }
@@ -408,6 +508,46 @@ function api(action, payload){
     .then(function(r){ return r.json(); });
 }
 
+function uniqueValues(values){
+  var out = [], seen = {};
+  (values || []).forEach(function(v){
+    v = norm(v);
+    if (!v || seen[key(v)]) return;
+    seen[key(v)] = true;
+    out.push(v);
+  });
+  return out;
+}
+function facetKey(kind, value){ return kind + "|" + key(value); }
+function hasPicked(list, kind, value){
+  var k = facetKey(kind, value);
+  return (list || []).some(function(x){ return facetKey(x.kind, x.value) === k; });
+}
+function pickedValues(list, kind){
+  return (list || []).filter(function(x){ return x.kind === kind; }).map(function(x){ return x.value; });
+}
+function togglePicked(list, kind, value){
+  var k = facetKey(kind, value), found = -1;
+  for (var i = 0; i < list.length; i++) if (facetKey(list[i].kind, list[i].value) === k){ found = i; break; }
+  if (found > -1) list.splice(found, 1); else list.push({ kind:kind, value:value });
+}
+function canonicalTopic(value){
+  var cleanValue = norm(value);
+  var aliasKey = cleanValue.toLowerCase().replace(/[^a-z0-9&]+/g, " ").replace(/\s+/g, " ").trim();
+  var aliases = {
+    "ai":"Artificial Intelligence",
+    "a i":"Artificial Intelligence",
+    "genai":"Artificial Intelligence",
+    "gen ai":"Artificial Intelligence",
+    "fow":"Future of Work",
+    "l&d":"Learning & Skills",
+    "l and d":"Learning & Skills"
+  };
+  return aliases[aliasKey] || cleanValue;
+}
+function topicValues(){ return uniqueValues((S.topics || []).concat(DEFAULT_TOPICS)); }
+function groupValues(group){ return group.key === "topic" ? topicValues() : group.values.slice(); }
+
 /* ============================================================
    TABS
    ============================================================ */
@@ -421,7 +561,7 @@ function showTab(name){
     $("p-" + t).hidden = !on;
   });
   if (name === "record" && !$("recForm")) renderRecord();
-  if (name === "retrieve") { loadRecords(); setTimeout(function(){ $("q").focus(); }, 30); }
+  if (name === "retrieve") { renderRetrieveFilters(); loadRecords(); setTimeout(function(){ $("q").focus(); }, 30); }
   window.scrollTo({ top:0, behavior:"smooth" });
 }
 TABS.forEach(function(t){
@@ -934,26 +1074,42 @@ function exampleName(library, folderPath){
 }
 
 /* ============================================================
-   TAB 2 — RECORD
+   TAB 2 - RECORD
    ============================================================ */
 
-/* Which questions this folder actually needs. Anything derivable from the
-   folder is never asked. */
+/* Ask only for information the chosen folder cannot supply automatically. */
 function plan(dest){
   var lib = dest.library;
   return {
     client:   lib === "01 Clients" ? "locked" : (lib === "03 Market & Sell" ? "ask" : "no"),
-    topics:   lib === "04 People" ? "multi" : "ask",
     people:   lib === "04 People" ? "locked"
               : (["01 Clients","02 Content","03 Market & Sell"].indexOf(lib) > -1 ? "ask" : "no"),
-    industry: lib === "05 Research" ? "ask" : "no",
-    language: (lib === "02 Content" || lib === "04 People") ? "ask" : "no"
+    industry: lib === "05 Research" ? "ask" : "no"
   };
 }
 
 function industryOf(clientName){
   var c = S.clients.filter(function(x){ return x.name === clientName; })[0];
   return c ? c.industry : "";
+}
+
+function defaultRecordLanguage(){
+  if (S.dest && S.dest.person){
+    var p = S.people.filter(function(x){ return key(x.name) === key(S.dest.person); })[0];
+    if (p && p.language){
+      if (key(p.language) === "english and arabic") return "English & Arabic";
+      if (LANGUAGES.indexOf(p.language) > -1) return p.language;
+    }
+  }
+  return "English";
+}
+
+function newRecordState(){
+  return {
+    docTypes: [],
+    selected: [{ kind:"language", value:defaultRecordLanguage() }],
+    activeTag: "topic"
+  };
 }
 
 function renderRecord(){
@@ -972,6 +1128,7 @@ function renderRecord(){
     return;
   }
 
+  S.record = newRecordState();
   var P = plan(S.dest);
 
   var strip = el("div", "strip");
@@ -986,30 +1143,7 @@ function renderRecord(){
   form.id = "recForm";
   form.noValidate = true;
 
-  form.appendChild(field("title", "Title", input("text", "2026 - ABC Company - Proposal - v1"),
-                         "Same as the file name in Drive."));
-  form.appendChild(field("desc", "Description", textarea(),
-                         "What is it, and when would you use it?"));
-  var tagInput = input("text", "leadership, workshop, proposal, final");
-  tagInput.maxLength = 500;
-  form.appendChild(field("tags", "Tags & keywords", tagInput,
-                         "Add useful words people may search for. Separate them with commas."));
-  form.appendChild(field("link", "Drive link", input("url", "Right-click the file \u203A Share \u203A Copy link")));
-  form.appendChild(field("doc", "Doc type", docSelect()));
-
-  /* topic — one dropdown, because 9 files in 10 have exactly one.
-     People are the exception: expertise is genuinely plural. */
-  if (P.topics === "multi"){
-    form.appendChild(field("topics", "Expertise", tickList("topic", TOPICS, [])));
-  } else if (P.topics === "ask"){
-    var ts = document.createElement("select");
-    ts.id = "topic";
-    ts.appendChild(new Option("Choose a topic", ""));
-    TOPICS.forEach(function(t){ ts.appendChild(new Option(t, t)); });
-    form.appendChild(field("topics", "Topic", ts));
-  }
-
-  /* client */
+  /* Client is deliberately first. */
   if (P.client === "locked"){
     form.appendChild(field("client", "Client", locked(S.dest.client)));
   } else if (P.client === "ask"){
@@ -1019,31 +1153,41 @@ function renderRecord(){
     S.clients.forEach(function(c){ cs.appendChild(new Option(c.name, c.name)); });
     cs.appendChild(new Option("+ Create a new client folder", "__new"));
     cs.addEventListener("change", function(){
-      if (cs.value === "__new"){ cs.value = ""; S.nav = { lib:LIBS[0], path:"" }; renderPicker(); showTab("upload"); newNameForm("client"); }
+      if (cs.value === "__new"){
+        cs.value = "";
+        S.nav = { lib:LIBS[0], path:"" };
+        renderPicker(); showTab("upload"); newNameForm("client");
+      }
     });
     form.appendChild(field("client", "Client", cs));
   }
 
-  /* people */
+  form.appendChild(field("title", "Title", input("text", "2026 - ABC Company - Document Name - v1"),
+                         "Same as the file name in Drive."));
+  form.appendChild(field("desc", "Description", textarea(),
+                         "What is this file, and when would someone use it?"));
+  form.appendChild(field("link", "Drive link", input("url", "Right-click the file \u203A Share \u203A Copy link")));
+  form.appendChild(field("doc", "What type of document is this?", documentTypePicker(),
+                         "Tap everything that applies."));
+
   if (P.people === "locked"){
     form.appendChild(field("people", "Person", locked(S.dest.person)));
   } else if (P.people === "ask" && S.people.length){
-    form.appendChild(field("people", "People", tickList("person", S.people.map(function(p){ return p.name; }), [])));
+    form.appendChild(field("people", "People", tickList("person", S.people.map(function(p){ return p.name; }), []),
+                           "Tap all the people connected to this file."));
   }
 
-  /* industry — only research */
+  /* Industry stays out of the normal form and appears only for Research. */
   if (P.industry === "ask"){
     var is = document.createElement("select");
     is.id = "industry";
-    is.appendChild(new Option("\u2014 none \u2014", ""));
+    is.appendChild(new Option("Choose an industry if relevant", ""));
     INDUSTRIES.forEach(function(v){ is.appendChild(new Option(v, v)); });
     form.appendChild(field("industry", "Industry", is));
   }
 
-  /* language toggle */
-  if (P.language === "ask"){
-    form.appendChild(field("lang", "Language", segment("lang", LANGUAGES, "English")));
-  }
+  form.appendChild(field("tags", "Tags and keywords", keywordBrowser("record"),
+                         "Tap all the keywords and tags that describe this file. You can choose as many as you need."));
 
   var hp = el("div", "hp");
   hp.setAttribute("aria-hidden", "true");
@@ -1092,17 +1236,6 @@ function textarea(){
   return t;
 }
 function locked(v){ return el("div", "locked", v); }
-function docSelect(){
-  var s = document.createElement("select");
-  s.appendChild(new Option("Choose", ""));
-  DOCTYPES.forEach(function(g){
-    var og = document.createElement("optgroup");
-    og.label = g[0];
-    g[1].forEach(function(v){ og.appendChild(new Option(v, v)); });
-    s.appendChild(og);
-  });
-  return s;
-}
 function tickList(name, values, checked){
   var box = el("div", "ticks");
   box.setAttribute("data-group", name);
@@ -1119,24 +1252,174 @@ function tickList(name, values, checked){
   });
   return box;
 }
-function segment(name, values, def){
-  var s = el("div", "seg");
-  values.forEach(function(v, i){
-    var l = document.createElement("label");
-    l.setAttribute("for", name + "-" + i);
-    var r = document.createElement("input");
-    r.type = "radio"; r.name = name; r.value = v; r.id = name + "-" + i;
-    r.className = name + "-radio";
-    if (v === def) r.checked = true;
-    l.appendChild(r);
-    l.appendChild(el("span", null, v));
-    s.appendChild(l);
-  });
-  return s;
-}
 function ticked(name){
   return Array.prototype.slice.call(document.querySelectorAll("." + name + "-box:checked"))
     .map(function(c){ return c.value; });
+}
+
+function documentTypePicker(){
+  var box = el("div", "choicebox");
+  box.id = "docChoices";
+  renderDocumentTypePicker(box);
+  return box;
+}
+function renderDocumentTypePicker(box){
+  box.innerHTML = "";
+  var grid = el("div", "choice-grid");
+  FLAT_DOCTYPES.forEach(function(v){
+    var b = el("button", "choice", v);
+    b.type = "button";
+    b.setAttribute("aria-pressed", String(S.record.docTypes.indexOf(v) > -1));
+    b.addEventListener("click", function(){
+      var i = S.record.docTypes.indexOf(v);
+      if (i > -1) S.record.docTypes.splice(i, 1); else S.record.docTypes.push(v);
+      renderDocumentTypePicker(box);
+      clr("doc");
+    });
+    grid.appendChild(b);
+  });
+  box.appendChild(grid);
+}
+
+function keywordBrowser(mode){
+  var box = el("div", "meta-browser");
+  box.id = mode === "record" ? "recordKeywordBrowser" : "retrieveKeywordBrowser";
+  renderKeywordBrowser(box, mode);
+  return box;
+}
+
+function keywordSelections(mode){ return mode === "record" ? S.record.selected : S.retrieve.filters; }
+function activeTagGroup(mode){ return mode === "record" ? S.record.activeTag : S.retrieve.activeTag; }
+function setActiveTagGroup(mode, value){ if (mode === "record") S.record.activeTag = value; else S.retrieve.activeTag = value; }
+
+function renderKeywordBrowser(box, mode){
+  box.innerHTML = "";
+  var selections = keywordSelections(mode);
+
+  if (mode === "record" && selections.length){
+    var selected = el("div", "selected-box");
+    selected.appendChild(el("div", "selected-title", "Selected"));
+    var selectedList = el("div", "selected-list");
+    selections.forEach(function(item){
+      var pill = el("button", "selected-pill");
+      pill.type = "button";
+      pill.appendChild(document.createTextNode(item.value));
+      pill.appendChild(el("span", null, "\u00D7"));
+      pill.addEventListener("click", function(){
+        togglePicked(selections, item.kind, item.value);
+        renderKeywordBrowser(box, mode);
+      });
+      selectedList.appendChild(pill);
+    });
+    selected.appendChild(selectedList);
+    box.appendChild(selected);
+  }
+
+  var tabs = el("div", "meta-tabs");
+  TAG_GROUPS.forEach(function(group){
+    var open = activeTagGroup(mode) === group.key;
+    var count = pickedValues(selections, group.key).length;
+    var b = el("button", "meta-tab");
+    b.type = "button";
+    b.setAttribute("aria-expanded", String(open));
+    b.appendChild(el("span", null, group.label));
+    b.appendChild(el("b", null, String(count)));
+    b.addEventListener("click", function(){
+      setActiveTagGroup(mode, open ? "" : group.key);
+      renderKeywordBrowser(box, mode);
+    });
+    tabs.appendChild(b);
+  });
+  box.appendChild(tabs);
+
+  var active = activeTagGroup(mode);
+  if (active && TAG_GROUP_MAP[active]){
+    var group = TAG_GROUP_MAP[active];
+    var panel = el("div", "meta-panel");
+    panel.appendChild(el("div", "meta-panel-title", group.label));
+    var grid = el("div", "choice-grid");
+    groupValues(group).forEach(function(v){
+      var b = el("button", "choice", v);
+      b.type = "button";
+      b.setAttribute("aria-pressed", String(hasPicked(selections, group.key, v)));
+      b.addEventListener("click", function(){
+        togglePicked(selections, group.key, v);
+        renderKeywordBrowser(box, mode);
+        if (mode === "record") clr("tags"); else { renderRetrieveFilters(); doSearch(); }
+      });
+      grid.appendChild(b);
+    });
+    panel.appendChild(grid);
+
+    if (mode === "record" && group.key === "topic") panel.appendChild(topicAdder(box));
+    box.appendChild(panel);
+  }
+
+  if (mode === "record") box.appendChild(customKeywordAdder(box));
+}
+
+function topicAdder(browser){
+  var wrap = el("div", "custom-keyword");
+  wrap.appendChild(el("div", "custom-title", "Add another topic"));
+  var row = el("div", "inline-add");
+  var i = input("text", "Type a new topic");
+  i.id = "newTopic"; i.maxLength = 80;
+  var add = el("button", "mini", "Add"); add.type = "button";
+  var msg = el("div", "inline-msg"); msg.id = "topicMsg";
+  function save(){
+    var value = canonicalTopic(i.value);
+    msg.className = "inline-msg";
+    if (value.length < 2){ msg.className += " badmsg"; msg.textContent = "Type the topic first."; return; }
+    if (value.length > 80 || value.indexOf(",") > -1){ msg.className += " badmsg"; msg.textContent = "Use one topic, without commas."; return; }
+    var existing = topicValues().filter(function(t){ return key(t) === key(value); })[0];
+    var finalValue = existing || value;
+    if (!existing){
+      S.topics.push(value);
+      S.topics = uniqueValues(S.topics);
+      TOPICS = S.topics.slice();
+      if (live()) api("addTopic", { topic:value }).catch(function(){ /* record submission also saves it */ });
+    }
+    if (!hasPicked(S.record.selected, "topic", finalValue)) S.record.selected.push({ kind:"topic", value:finalValue });
+    renderKeywordBrowser(browser, "record");
+    clr("tags");
+  }
+  add.addEventListener("click", save);
+  i.addEventListener("keydown", function(ev){ if (ev.key === "Enter"){ ev.preventDefault(); save(); } });
+  row.appendChild(i); row.appendChild(add);
+  wrap.appendChild(row); wrap.appendChild(msg);
+  return wrap;
+}
+
+function customKeywordAdder(browser){
+  var wrap = el("div", "custom-keyword");
+  wrap.appendChild(el("div", "custom-title", "Add your own keyword"));
+  var row = el("div", "inline-add");
+  var i = input("text", "Project, programme or campaign name");
+  i.id = "customKeyword"; i.maxLength = 80;
+  var add = el("button", "mini", "Add"); add.type = "button";
+  var msg = el("div", "inline-msg"); msg.id = "keywordMsg";
+  function save(){
+    var value = norm(i.value);
+    msg.className = "inline-msg";
+    if (value.length < 2){ msg.className += " badmsg"; msg.textContent = "Type the keyword first."; return; }
+    if (value.length > 80 || value.indexOf(",") > -1){ msg.className += " badmsg"; msg.textContent = "Use one keyword, without commas."; return; }
+    if (!hasPicked(S.record.selected, "custom", value)) S.record.selected.push({ kind:"custom", value:value });
+    renderKeywordBrowser(browser, "record");
+    clr("tags");
+  }
+  add.addEventListener("click", save);
+  i.addEventListener("keydown", function(ev){ if (ev.key === "Enter"){ ev.preventDefault(); save(); } });
+  row.appendChild(i); row.appendChild(add);
+  wrap.appendChild(row); wrap.appendChild(msg);
+  return wrap;
+}
+
+function recordTagValues(){
+  var out = [];
+  S.record.selected.forEach(function(x){
+    if (x.kind !== "topic" && x.kind !== "language") out.push(x.value);
+  });
+  return uniqueValues(out);
 }
 
 function bad(id, msg){
@@ -1154,6 +1437,11 @@ function clr(id){
 
 var sending = false;
 
+function titleYear(title){
+  var hit = String(title || "").match(/(?:^|\D)((?:19|20)\d{2})(?:\D|$)/);
+  return hit ? Number(hit[1]) : new Date().getFullYear();
+}
+
 function submitRecord(ev){
   ev.preventDefault();
   if (sending) return;
@@ -1162,32 +1450,25 @@ function submitRecord(ev){
 
   var n = 0;
   if (!$("title").value.trim()){ bad("title", "Enter the title. It must match the file name in Drive."); n++; } else clr("title");
-  if ($("desc").value.trim().length < 20){ bad("desc", "One or two sentences \u2014 at least 20 characters. This is what finds the file again."); n++; } else clr("desc");
-
-  var tagItems = $("tags").value.split(",").map(norm).filter(Boolean).filter(function(v, i, a){
-    return a.map(key).indexOf(key(v)) === i;
-  });
-  var tags = tagItems.join(", ");
-  if (!tagItems.length){ bad("tags", "Add at least one useful tag or keyword."); n++; }
-  else if (tags.length > 500){ bad("tags", "Keep Tags & Keywords to 500 characters or fewer."); n++; }
-  else clr("tags");
+  if ($("desc").value.trim().length < 20){ bad("desc", "Write one or two clear sentences - at least 20 characters."); n++; } else clr("desc");
 
   var link = $("link").value.trim();
-  if (!link){ bad("link", "Paste the Drive link \u2014 right-click the file \u203A Share \u203A Copy link."); n++; }
-  else if (!/^https:\/\/(drive|docs)\.google\.com\//.test(link)){ bad("link", "That is not a Google Drive link. Right-click the file in Drive, choose Share, then Copy link."); n++; }
+  if (!link){ bad("link", "Paste the Google Drive link."); n++; }
+  else if (!/^https:\/\/(drive|docs)\.google\.com\//.test(link)){ bad("link", "Use a Google Drive or Google Docs link."); n++; }
   else clr("link");
 
-  if (!$("doc").value){ bad("doc", "Choose what kind of file this is."); n++; } else clr("doc");
+  if (!S.record.docTypes.length){ bad("doc", "Tap at least one document type."); n++; } else clr("doc");
+
+  var topics = pickedValues(S.record.selected, "topic");
+  var tags = recordTagValues().join(", ");
+  if (!topics.length){
+    S.record.activeTag = "topic";
+    renderKeywordBrowser($("recordKeywordBrowser"), "record");
+    bad("tags", "Tap at least one topic."); n++;
+  } else if (tags.length > 2000){ bad("tags", "Remove a few selections so the tags stay under 2,000 characters."); n++; }
+  else clr("tags");
 
   var P = plan(S.dest);
-  var topics = [];
-  if (P.topics === "multi"){
-    topics = ticked("topic");
-    if (!topics.length){ bad("topics", "Tick at least one area of expertise."); n++; } else clr("topics");
-  } else if (P.topics !== "no"){
-    var tv = $("topic") ? $("topic").value : "";
-    if (!tv){ bad("topics", "Choose the topic this file is about."); n++; } else { topics = [tv]; clr("topics"); }
-  }
   var clientVal = P.client === "locked" ? S.dest.client
                 : P.client === "ask" ? ($("client") ? $("client").value : "") : "";
   if (P.client === "ask"){
@@ -1209,21 +1490,23 @@ function submitRecord(ev){
   if ($("website").value) return;
 
   var people = P.people === "locked" ? [S.dest.person] : (P.people === "ask" ? ticked("person") : []);
-  var langEl = document.querySelector(".lang-radio:checked");
+  var languages = pickedValues(S.record.selected, "language");
+  var title = $("title").value.trim();
 
   var payload = {
-    title:       $("title").value.trim(),
+    title:       title,
     description: $("desc").value.trim(),
     tags:        tags,
     driveLink:   link,
-    docType:     $("doc").value,
+    docType:     S.record.docTypes.join(", "),
     topics:      topics.join(", "),
     client:      clientVal,
     people:      people.join(", "),
     industry:    clientVal ? industryOf(clientVal) : ($("industry") ? $("industry").value : ""),
-    language:    langEl ? langEl.value : "English",
+    language:    languages.join(", ") || "English",
     library:     S.dest.library,
     folderPath:  S.dest.folderPath,
+    year:        titleYear(title),
     website:     ""
   };
 
@@ -1235,7 +1518,7 @@ function submitRecord(ev){
   api("record", payload)
     .then(function(d){
       if (!d || !d.ok) throw new Error(d && d.error ? d.error : "failed");
-      S.records = null;                       // index changed
+      S.records = null;
       if (d.next) { S.next = d.next; $("chipId").textContent = d.next; $("chip").hidden = false; }
       recordDone(d.id, payload);
     })
@@ -1243,7 +1526,7 @@ function submitRecord(ev){
       sending = false;
       go.disabled = false;
       go.textContent = "Record file";
-      fe.textContent = "Could not reach the Sheet. Press Record file again \u2014 nothing was lost.";
+      fe.textContent = "Could not reach the Sheet. Press Record file again - nothing was lost.";
       fe.classList.add("on");
     });
 }
@@ -1259,7 +1542,8 @@ function recordDone(id, p){
 
   var dl = document.createElement("dl");
   dl.style.margin = "0";
-  [["Title", p.title], ["Folder", p.library + " \u203A " + p.folderPath], ["Type", p.docType], ["Tags", p.tags]]
+  [["Title", p.title], ["Folder", p.library + " \u203A " + p.folderPath], ["Type", p.docType],
+   ["Topics", p.topics], ["Tags", p.tags || "-"]]
     .forEach(function(r){
       var row = el("div", "row");
       row.appendChild(el("dt", null, r[0]));
@@ -1283,18 +1567,18 @@ function recordDone(id, p){
 }
 
 /* ============================================================
-   TAB 3 — RETRIEVE
+   TAB 3 - RETRIEVE
    ============================================================ */
 
 var FACETS = [];
 function addFacet(phrase, kind, value){
   if (!phrase) return;
-  FACETS.push({ p: String(phrase).toLowerCase(), kind: kind, value: value });
+  FACETS.push({ p:String(phrase).toLowerCase(), kind:kind, value:value });
 }
 
 function buildFacets(){
   FACETS = [];
-  TOPICS.forEach(function(t){ addFacet(t, "topic", t); });
+  topicValues().forEach(function(t){ addFacet(t, "topic", t); });
   addFacet("ai", "topic", "Artificial Intelligence");
   addFacet("genai", "topic", "Artificial Intelligence");
   addFacet("machine learning", "topic", "Artificial Intelligence");
@@ -1302,11 +1586,18 @@ function buildFacets(){
   addFacet("l&d", "topic", "Learning & Skills");
   addFacet("training", "topic", "Learning & Skills");
 
+  TAG_GROUPS.forEach(function(group){
+    if (group.key === "topic" || group.key === "language") return;
+    group.values.forEach(function(v){
+      /* These two words already name main libraries. Typed searches keep the
+         original library behaviour; the exact purpose tags remain tappable. */
+      if (group.key === "purpose" && (v === "Research" || v === "Alliance IP")) return;
+      addFacet(v, group.key, v);
+    });
+  });
+
   S.clients.forEach(function(c){ addFacet(c.name, "client", c.name); });
   S.people.forEach(function(p){ addFacet(p.name, "person", p.name); });
-  /* A first name is only an alias when it belongs to exactly one person.
-     With two Ahmeds, "ahmed" would silently resolve to whichever was added
-     last and hide the other one's files. */
   var firsts = {};
   S.people.forEach(function(p){
     var f = String(p.name).split(" ")[0].toLowerCase();
@@ -1341,9 +1632,18 @@ function buildFacets(){
   addFacet("health", "industry", "Healthcare");
   addFacet("oil", "industry", "Energy");
 
+  addFacet("english and arabic", "language", "English & Arabic");
+  addFacet("bilingual", "language", "English & Arabic");
   LANGUAGES.forEach(function(l){ addFacet(l, "language", l); });
 
+  (S.records || []).forEach(function(r){
+    if (r.year) addFacet(String(r.year), "year", String(r.year));
+    if (r.fileFormat) addFacet(String(r.fileFormat), "fileFormat", String(r.fileFormat));
+    if (r.fileSize) addFacet(String(r.fileSize), "fileSize", String(r.fileSize));
+  });
+
   addFacet("research", "library", "05 Research");
+  addFacet("alliance ip", "library", "06 Alliance IP");
   addFacet("clients", "library", "01 Clients");
   addFacet("people", "library", "04 People");
   addFacet("facilitator", "library", "04 People");
@@ -1354,12 +1654,11 @@ function buildFacets(){
   addFacet("archive", "library", "99 Archive");
   LIBS.forEach(function(L){ addFacet(L.id, "library", L.id); });
 
-  FACETS.sort(function(a, b){ return b.p.length - a.p.length; });
+  FACETS.sort(function(a,b){ return b.p.length - a.p.length; });
 }
 
 var STOP = {};
-"the a an for of in on to and or with we our us have has do did any what which how is are from by at that this it can deliver delivers show me find need want about all"
-  .split(" ").forEach(function(w){ STOP[w] = 1; });
+"a an and are as at be by can deliver delivers do file files find for from give has have i in is it me my of on or our show that the this to was we what when where which who with you".split(" ").forEach(function(w){ STOP[w] = 1; });
 
 function clean(s){
   return " " + String(s || "").toLowerCase().replace(/[^a-z0-9&\s]/g, " ").replace(/\s+/g, " ").trim() + " ";
@@ -1375,7 +1674,7 @@ function parseQuery(q){
       for (var i = 0; i < found.length; i++){
         if (found[i].kind === f.kind && found[i].value === f.value) return;
       }
-      found.push({ kind:f.kind, value:f.value });
+      found.push({ kind:f.kind, value:f.value, source:"typed" });
       s = s.replace(needle, " ");
     }
   });
@@ -1383,24 +1682,32 @@ function parseQuery(q){
   s.split(" ").forEach(function(t){
     if (t && !STOP[t] && t.length > 1 && free.indexOf(t) < 0) free.push(t);
   });
-  return { facets: found, free: free };
+  return { facets:found, free:free };
 }
 
-var W = { title:10, tags:9, topics:8, client:9, people:8, docType:6, industry:5,
-          description:3, folderPath:2, library:1, language:4 };
+var W = { title:10, tags:9, topics:8, client:9, people:8, docType:6, fileFormat:6,
+          fileSize:2, industry:5, description:3, folderPath:2, library:1, language:4 };
 
 function txt(r, f){
   var v = r[f];
   return String(v === null || v === undefined ? "" : v).toLowerCase();
 }
+function listHas(value, wanted){
+  var k = key(wanted);
+  return String(value || "").split(",").some(function(v){ return key(v) === k; });
+}
 function hasFacet(r, f){
-  if (f.kind === "topic")    return txt(r, "topics").indexOf(f.value.toLowerCase()) > -1;
-  if (f.kind === "person")   return txt(r, "people").indexOf(f.value.toLowerCase()) > -1;
-  if (f.kind === "client")   return r.client === f.value;
-  if (f.kind === "docType")  return r.docType === f.value;
-  if (f.kind === "industry") return r.industry === f.value;
+  if (f.kind === "topic")    return listHas(r.topics, f.value);
+  if (f.kind === "person")   return listHas(r.people, f.value);
+  if (f.kind === "client")   return key(r.client) === key(f.value);
+  if (f.kind === "docType")  return listHas(r.docType, f.value);
+  if (f.kind === "industry") return key(r.industry) === key(f.value);
   if (f.kind === "library")  return r.library === f.value;
-  if (f.kind === "language") return r.language === f.value;
+  if (f.kind === "language")   return listHas(r.language, f.value) || txt(r, "language").indexOf(key(f.value)) > -1;
+  if (f.kind === "fileFormat") return key(r.fileFormat) === key(f.value);
+  if (f.kind === "fileSize")   return key(r.fileSize) === key(f.value);
+  if (f.kind === "year")       return String(r.year || "") === String(f.value);
+  if (TAG_GROUP_MAP[f.kind])    return listHas(r.tags, f.value);
   return false;
 }
 
@@ -1436,62 +1743,53 @@ function scoreAll(parsed, raw){
     if (r.status === "Superseded" || r.status === "Archived") s -= 40;
     return { r:r, s:s };
   }).filter(function(x){ return x.s > 0; })
-    .sort(function(a, b){ return b.s - a.s || (Number(b.r.year)||0) - (Number(a.r.year)||0); });
+    .sort(function(a,b){ return b.s - a.s || (Number(b.r.year)||0) - (Number(a.r.year)||0); });
 }
 
 function current(list){
   return list.filter(function(x){ return x.r.status !== "Superseded" && x.r.status !== "Archived"; });
 }
 
-/* The ladder. Each rung is tried only when the one above found nothing, so
-   the page is never blank while a relevant file exists. */
 function runSearch(q, facetsIn){
-  var parsed = facetsIn ? { facets: facetsIn.facets, free: facetsIn.free } : parseQuery(q);
+  var parsed = facetsIn ? { facets:facetsIn.facets.slice(), free:facetsIn.free.slice() } : parseQuery(q);
   var raw = String(q || "").toLowerCase().trim();
   var recs = S.records || [];
 
-  if (!parsed.facets.length && !parsed.free.length) return { hits: [], mode: "empty", parsed: parsed };
+  if (!parsed.facets.length && !parsed.free.length) return { hits:[], mode:"empty", parsed:parsed };
 
-  /* 1 — everything asked for, current files */
   var scored = scoreAll(parsed, raw);
-  var live = current(scored);
-  if (live.length) return { hits: live, mode: "exact", parsed: parsed };
+  var liveHits = current(scored);
+  if (liveHits.length) return { hits:liveHits, mode:"exact", parsed:parsed };
+  if (scored.length) return { hits:scored, mode:"old", parsed:parsed };
 
-  /* 2 — same, but the only matches are older versions */
-  if (scored.length) return { hits: scored, mode: "old", parsed: parsed };
-
-  /* 3 — a word was read as a tag when it was just a word.
-     "cohort design facilitator mix" reads "facilitator" as the People
-     library and finds nothing; as plain words it finds the proposals. */
-  if (parsed.facets.length){
+  /* Keep tapped filters fixed if typed facets need to fall back to normal words. */
+  if (raw && parsed.facets.some(function(f){ return f.source !== "tap"; })){
     var words = [];
     clean(q).split(" ").forEach(function(t){
       if (t && !STOP[t] && t.length > 1 && words.indexOf(t) < 0) words.push(t);
     });
     if (words.length){
-      var asWords = scoreAll({ facets: [], free: words }, raw);
+      var fixed = parsed.facets.filter(function(f){ return f.source === "tap"; });
+      var asWords = scoreAll({ facets:fixed, free:words }, raw);
       var liveWords = current(asWords);
-      if (liveWords.length) return { hits: liveWords, mode: "words", parsed: { facets: [], free: words } };
-      if (asWords.length)   return { hits: asWords,   mode: "old",   parsed: { facets: [], free: words } };
+      if (liveWords.length) return { hits:liveWords, mode:"words", parsed:{ facets:fixed, free:words } };
+      if (asWords.length) return { hits:asWords, mode:"old", parsed:{ facets:fixed, free:words } };
     }
   }
 
-  /* 4 — drop to OR across the facets */
   if (parsed.facets.length > 1){
     var loose = recs.map(function(r){
       var s = 0;
       parsed.facets.forEach(function(f){ if (hasFacet(r, f)) s += 20; });
       return { r:r, s:s };
     }).filter(function(x){ return x.s > 0 && x.r.status !== "Superseded"; })
-      .sort(function(a, b){ return b.s - a.s; });
-    if (loose.length) return { hits: loose, mode: "closest", parsed: parsed };
+      .sort(function(a,b){ return b.s - a.s; });
+    if (loose.length) return { hits:loose, mode:"closest", parsed:parsed };
   }
 
-  return { hits: [], mode: "none", parsed: parsed };
+  return { hits:[], mode:"none", parsed:parsed };
 }
 
-/* Only ever turn a stored string into a clickable href if it is a Drive URL.
-   A row could have been written by something other than this form. */
 function safeLink(u){
   return /^https:\/\/(drive|docs)\.google\.com\//.test(String(u || ""));
 }
@@ -1505,94 +1803,184 @@ function relatedTo(rec){
     if (r.id === rec.id || r.status === "Superseded") return { r:r, s:0, why:[] };
     var s = 0, why = [];
     if (rec.client && r.client === rec.client){ s += 10; why.push("same client"); }
-    var t = myTopics.filter(function(x){ return String(r.topics || "").indexOf(x) > -1; });
+    var t = myTopics.filter(function(x){ return listHas(r.topics, x); });
     if (t.length){ s += 6 * t.length; why.push("topic: " + t.join(", ")); }
-    var p = myPeople.filter(function(x){ return String(r.people || "").indexOf(x) > -1; });
+    var p = myPeople.filter(function(x){ return listHas(r.people, x); });
     if (p.length){ s += 4 * p.length; why.push("person: " + p.join(", ")); }
     if (rec.industry && r.industry === rec.industry && !rec.client){ s += 3; why.push("same industry"); }
     return { r:r, s:s, why:why };
   }).filter(function(x){ return x.s > 0; })
-    .sort(function(a, b){ return b.s - a.s; })
+    .sort(function(a,b){ return b.s - a.s; })
     .slice(0, 6);
 }
 
-/* ---- retrieve UI ---- */
+function quickValues(kind){
+  if (kind === "client"){
+    var fromRecords = (S.records || []).map(function(r){ return r.client; });
+    return uniqueValues(S.clients.map(function(c){ return c.name; }).concat(fromRecords)).sort(function(a,b){ return a.localeCompare(b); });
+  }
+  if (kind === "docType") return FLAT_DOCTYPES.slice();
+  if (kind === "fileFormat"){
+    return uniqueValues((S.records || []).map(function(r){ return r.fileFormat || ""; }))
+      .sort(function(a,b){ return a.localeCompare(b); });
+  }
+  if (kind === "fileSize"){
+    var order = ["Google file","Under 1 MB","1-10 MB","10-50 MB","50-200 MB","Over 200 MB"];
+    return uniqueValues((S.records || []).map(function(r){ return r.fileSize || ""; }))
+      .sort(function(a,b){
+        var ai = order.indexOf(a), bi = order.indexOf(b);
+        return (ai < 0 ? 99 : ai) - (bi < 0 ? 99 : bi) || a.localeCompare(b);
+      });
+  }
+  if (kind === "year"){
+    return uniqueValues((S.records || []).map(function(r){ return r.year ? String(r.year) : ""; }))
+      .sort(function(a,b){ return Number(b) - Number(a); });
+  }
+  return [];
+}
+
+function renderRetrieveFilters(){
+  var root = $("retrieveFilters");
+  if (!root) return;
+  root.innerHTML = "";
+
+  var quick = el("div", "filter-section");
+  var qh = el("div", "filter-heading");
+  qh.appendChild(el("strong", null, "Quick filters"));
+  qh.appendChild(el("span", null, "optional"));
+  quick.appendChild(qh);
+  var qt = el("div", "quick-tabs");
+  QUICK_FILTERS.forEach(function(group){
+    var open = S.retrieve.activeQuick === group.key;
+    var count = pickedValues(S.retrieve.filters, group.key).length;
+    var b = el("button", "meta-tab"); b.type = "button";
+    b.setAttribute("aria-expanded", String(open));
+    b.appendChild(el("span", null, group.label));
+    b.appendChild(el("b", null, String(count)));
+    b.addEventListener("click", function(){
+      S.retrieve.activeQuick = open ? "" : group.key;
+      renderRetrieveFilters();
+    });
+    qt.appendChild(b);
+  });
+  quick.appendChild(qt);
+  if (S.retrieve.activeQuick){
+    var qp = el("div", "quick-panel");
+    var qgrid = el("div", "choice-grid");
+    quickValues(S.retrieve.activeQuick).forEach(function(v){
+      var b = el("button", "choice", v); b.type = "button";
+      b.setAttribute("aria-pressed", String(hasPicked(S.retrieve.filters, S.retrieve.activeQuick, v)));
+      b.addEventListener("click", function(){
+        togglePicked(S.retrieve.filters, S.retrieve.activeQuick, v);
+        renderRetrieveFilters(); doSearch();
+      });
+      qgrid.appendChild(b);
+    });
+    if (!qgrid.children.length) qp.appendChild(el("p", "meta-note", "No options are available yet."));
+    else qp.appendChild(qgrid);
+    quick.appendChild(qp);
+  }
+  root.appendChild(quick);
+
+  var tags = el("div", "filter-section");
+  var th = el("div", "filter-heading");
+  th.appendChild(el("strong", null, "Tags and keywords"));
+  th.appendChild(el("span", null, "tap any that apply"));
+  tags.appendChild(th);
+  tags.appendChild(keywordBrowser("retrieve"));
+  root.appendChild(tags);
+
+  if (S.retrieve.filters.length){
+    var reset = el("button", "filter-reset", "Clear all filters"); reset.type = "button";
+    reset.addEventListener("click", function(){
+      S.retrieve.filters = []; S.retrieve.activeQuick = ""; S.retrieve.activeTag = "";
+      renderRetrieveFilters(); doSearch();
+    });
+    root.appendChild(reset);
+  }
+}
 
 function loadRecords(){
-  if (S.records || S.loadingRecords) return;
-  if (!live()){ S.records = []; return; }
+  if (S.records || S.loadingRecords){ renderRetrieveFilters(); return; }
+  if (!live()){ S.records = S.records || []; buildFacets(); renderRetrieveFilters(); doSearch(); return; }
   S.loadingRecords = true;
   $("results").innerHTML = '<div class="spin">Loading the index\u2026</div>';
   api("records").then(function(d){
     S.loadingRecords = false;
     S.records = (d && d.records) || [];
-    buildFacets();
-    doSearch();
+    buildFacets(); renderRetrieveFilters(); doSearch();
   }).catch(function(){
     S.loadingRecords = false;
     S.records = [];
+    renderRetrieveFilters();
     $("results").innerHTML = '<div class="spin">Could not load the index. Check your connection and reopen this tab.</div>';
   });
 }
 
+function mergedSearch(q){
+  var parsed = parseQuery(q);
+  parsed.facets = parsed.facets.filter(function(f){
+    return S.removed.indexOf(facetKey(f.kind, f.value)) < 0;
+  });
+  S.retrieve.filters.forEach(function(f){
+    if (!hasPicked(parsed.facets, f.kind, f.value)) parsed.facets.push({ kind:f.kind, value:f.value, source:"tap" });
+    else parsed.facets.forEach(function(x){ if (facetKey(x.kind,x.value) === facetKey(f.kind,f.value)) x.source = "tap"; });
+  });
+  return parsed;
+}
+
 function doSearch(){
   var q = $("q").value;
-  if (q !== S.lastQuery) S.removed = [];   /* a new question, a clean slate */
+  if (q !== S.lastQuery) S.removed = [];
   S.lastQuery = q;
   var rb = $("readback"), out = $("results");
   rb.innerHTML = ""; out.innerHTML = "";
 
-  if (!S.records){ return; }
-  if (!String(q).trim()){
+  if (!S.records) return;
+  var parsed = mergedSearch(q);
+  if (!String(q).trim() && !parsed.facets.length){
     out.innerHTML = '<div class="spin">' + (S.records.length ? S.records.length + " files indexed" : "Nothing recorded yet") + '</div>';
     return;
   }
 
-  var parsed = parseQuery(q);
-  parsed.facets = parsed.facets.filter(function(f){
-    return S.removed.indexOf(f.kind + "|" + f.value) < 0;
-  });
-
   var res = runSearch(q, parsed);
 
-  /* readback — how the words were understood */
   var bar = el("div", "readback");
   parsed.facets.forEach(function(f){
-    var b = el("button", "fchip");
-    b.type = "button";
+    var b = el("button", "fchip"); b.type = "button";
     b.appendChild(document.createTextNode(f.value));
     b.appendChild(el("em", null, "\u00D7"));
     b.title = "Remove this filter";
     b.addEventListener("click", function(){
-      S.removed.push(f.kind + "|" + f.value);
+      if (hasPicked(S.retrieve.filters, f.kind, f.value)){
+        togglePicked(S.retrieve.filters, f.kind, f.value);
+        renderRetrieveFilters();
+      } else {
+        S.removed.push(facetKey(f.kind, f.value));
+      }
       doSearch();
     });
     bar.appendChild(b);
   });
-  parsed.free.forEach(function(t){
-    bar.appendChild(el("span", "fchip free", '"' + t + '"'));
-  });
+  parsed.free.forEach(function(t){ bar.appendChild(el("span", "fchip free", '"' + t + '"')); });
   if (parsed.facets.length || parsed.free.length){
     bar.appendChild(el("span", "count", res.hits.length + (res.hits.length === 1 ? " result" : " results")));
     rb.appendChild(bar);
   }
   if (S.removed.length){
-    var reset = el("button", "fchip free", "reset filters");
-    reset.type = "button";
-    reset.addEventListener("click", function(){ S.removed = []; doSearch(); });
-    bar.appendChild(reset);
+    var resetTyped = el("button", "fchip free", "restore typed filters");
+    resetTyped.type = "button";
+    resetTyped.addEventListener("click", function(){ S.removed = []; doSearch(); });
+    bar.appendChild(resetTyped);
   }
 
-  if (res.mode === "old")     rb.appendChild(el("div", "banner", "Only older versions match. A newer one may exist under a different name."));
-  if (res.mode === "words")   rb.appendChild(el("div", "banner", "No file is tagged that way, so these match your words instead."));
+  if (res.mode === "old") rb.appendChild(el("div", "banner", "Only older versions match. A newer one may exist under a different name."));
+  if (res.mode === "words") rb.appendChild(el("div", "banner", "No file is tagged that way, so these match your words instead."));
   if (res.mode === "closest") rb.appendChild(el("div", "banner", "No exact match. Showing the closest files."));
 
   if (!res.hits.length){
     var none = el("div", "banner");
-    none.textContent = "Nothing found. Read as: " +
-      (parsed.facets.map(function(f){ return f.value; }).join(", ") || "\u2014") +
-      (parsed.free.length ? '  plus "' + parsed.free.join(" ") + '"' : "") +
-      ". Try fewer words.";
+    none.textContent = "Nothing found. Remove a filter or try fewer words.";
     out.appendChild(none);
     return;
   }
@@ -1610,9 +1998,10 @@ function resultCard(r){
   if (r.status === "Superseded" || r.status === "Archived") h.appendChild(el("span", "old", r.status));
   c.appendChild(h);
 
-  var bits = [r.docType, r.library + " \u203A " + r.folderPath];
+  var bits = [r.docType, r.fileFormat, r.fileSize, r.library + " \u203A " + r.folderPath];
   if (r.client) bits.push(r.client);
   if (r.topics) bits.push(r.topics);
+  if (r.year) bits.push(String(r.year));
   c.appendChild(el("div", "meta", bits.filter(Boolean).join("  \u00B7  ")));
 
   if (r.description) c.appendChild(el("p", "desc", r.description));
@@ -1626,10 +2015,10 @@ function resultCard(r){
   }
   var relBox = el("div", "rel");
   relBox.hidden = true;
-  var rb = el("button", null, "Related \u25B8");
-  rb.type = "button";
-  rb.addEventListener("click", function(){
-    if (!relBox.hidden){ relBox.hidden = true; rb.textContent = "Related \u25B8"; return; }
+  var relButton = el("button", null, "Related \u25B8");
+  relButton.type = "button";
+  relButton.addEventListener("click", function(){
+    if (!relBox.hidden){ relBox.hidden = true; relButton.textContent = "Related \u25B8"; return; }
     relBox.innerHTML = "";
     var rel = relatedTo(r);
     if (!rel.length){
@@ -1641,17 +2030,15 @@ function resultCard(r){
           var link = el("a", null, x.r.title);
           link.href = x.r.driveLink; link.target = "_blank"; link.rel = "noopener";
           row.appendChild(link);
-        } else {
-          row.appendChild(document.createTextNode(x.r.title));
-        }
+        } else row.appendChild(document.createTextNode(x.r.title));
         row.appendChild(el("div", "why", x.why.join("  \u00B7  ")));
         relBox.appendChild(row);
       });
     }
     relBox.hidden = false;
-    rb.textContent = "Related \u25BE";
+    relButton.textContent = "Related \u25BE";
   });
-  acts.appendChild(rb);
+  acts.appendChild(relButton);
   c.appendChild(acts);
   c.appendChild(relBox);
   return c;
@@ -1682,22 +2069,27 @@ function boot(){
     if (!d || !d.ok) return;
     S.clients = d.clients || [];
     S.people  = d.people  || [];
+    S.topics  = uniqueValues((d.topics || []).concat(DEFAULT_TOPICS));
+    TOPICS    = S.topics.slice();
     S.folders = d.folders || {};
     S.next    = d.next || "";
     if (S.next){ $("chipId").textContent = S.next; $("chip").hidden = false; }
     buildFacets();
     renderPicker();
+    renderRetrieveFilters();
   }).catch(function(){ /* offline: the fixed folders still work */ });
 }
 boot();
 
-window.__AKR = { S: S, safeLink: safeLink, parseQuery: parseQuery, runSearch: runSearch, relatedTo: relatedTo,
-                 buildFacets: buildFacets, plan: plan, nearMatch: nearMatch, showTab: showTab,
-                 doSearch: doSearch, renderRecord: renderRecord, renderPicker: renderPicker,
-                 folderNames: folderNames, clientFolderNames: clientFolderNames,
-                 folderChildren: folderChildren, pathParts: pathParts, joinPath: joinPath,
-                 destinationExtra: destinationExtra, newFolderForm: newFolderForm,
-                 folderTarget: folderTarget, folderUrl: folderUrl };
+window.__AKR = { S:S, safeLink:safeLink, parseQuery:parseQuery, runSearch:runSearch, relatedTo:relatedTo,
+                 buildFacets:buildFacets, plan:plan, nearMatch:nearMatch, showTab:showTab,
+                 doSearch:doSearch, renderRecord:renderRecord, renderPicker:renderPicker,
+                 renderRetrieveFilters:renderRetrieveFilters, hasFacet:hasFacet, togglePicked:togglePicked,
+                 pickedValues:pickedValues, recordTagValues:recordTagValues, titleYear:titleYear,
+                 folderNames:folderNames, clientFolderNames:clientFolderNames,
+                 folderChildren:folderChildren, pathParts:pathParts, joinPath:joinPath,
+                 destinationExtra:destinationExtra, newFolderForm:newFolderForm,
+                 folderTarget:folderTarget, folderUrl:folderUrl, TAG_GROUPS:TAG_GROUPS, FLAT_DOCTYPES:FLAT_DOCTYPES };
 })();
 </script>
 </body>
