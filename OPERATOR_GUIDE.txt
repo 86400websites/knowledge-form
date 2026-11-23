@@ -1,0 +1,112 @@
+============================================================
+ ALLIANCE KNOWLEDGE REPOSITORY - SIMPLE OPERATOR GUIDE
+============================================================
+
+
+1. UPLOAD
+
+Choose one main folder:
+
+01 Clients
+02 Content
+03 Market & Sell
+04 People
+05 Research
+06 Alliance IP
+99 Archive
+
+Open the correct folder, or create a folder or subfolder.
+Click "Upload a file to this folder".
+Select Choose file from laptop, choose a file up to 10 MB and press Upload to this folder. Once Drive confirms, the Record form opens with the name and link filled in. For larger files, open the folder in Drive, upload there and choose Record an existing Drive file.
+
+
+2. RECORD
+
+Complete the form from top to bottom.
+
+CLIENT
+Automatic when the selected folder belongs to a client.
+
+TITLE
+Use the same title as the file name in Drive.
+
+DESCRIPTION
+Write one clear sentence explaining what the file is and when it is useful.
+
+DRIVE LINK
+Direct uploads fill this in automatically. For an existing file, right-click it in Drive > Share > Copy link.
+
+DOCUMENT TYPE
+Tap every type that applies. A file can be both Framework and Slide Deck.
+
+PEOPLE
+Shown only when relevant.
+
+INDUSTRY
+Shown only for files inside 05 Research.
+
+TAGS AND KEYWORDS
+Tap all the words that describe the file. Open one section at a time:
+
+- Topic
+- What is it for?
+- Who is it for?
+- How is it used?
+- Style and features
+- Region
+- Language
+
+The selected button changes colour and shows a checkmark. Tap it again to
+remove it.
+
+For a missing topic or keyword, ask your keyword administrator.
+
+File Format and File Size are detected automatically. Do not enter them.
+
+Click "Record file".
+
+
+3. RETRIEVE
+
+METHOD A - NORMAL SEARCH
+
+Type anything you remember, such as:
+
+MODON leadership workshop
+Arabic facilitator
+AI workbook
+PDF 2025
+
+METHOD B - TAP FILTERS
+
+Use the quick filters:
+
+- Client
+- Document Type
+- File Format
+- File Size
+- Year
+
+Or open the same Tags and Keywords sections used in Record:
+
+- Topic
+- What is it for?
+- Who is it for?
+- How is it used?
+- Style and features
+- Region
+- Language
+
+You can type and tap filters at the same time.
+Tap a selected filter again, or use Clear all filters, to remove it.
+
+
+THREE RULES
+
+1. Record every useful file after uploading it.
+2. Select keywords from the shared list.
+3. Ask the repository owner before moving, renaming or deleting a recorded file.
+
+4. MANAGE KEYWORDS
+
+Open the repository with the admin key and select Manage keywords. Choose a group, then add a new keyword or select an existing one. Save name updates all matching records. Remove keyword shows how many records use it and lets you select a replacement before confirming.

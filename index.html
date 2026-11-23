@@ -5,32 +5,9 @@
 <meta name="viewport" content="width=device-width, initial-scale=1">
 <title>Alliance Knowledge Repository</title>
 
-<!-- ==================================================================
-     SETTINGS
-
-     ENDPOINT and SHEET_URL connect the page to Apps Script and the Sheet.
-     FOLDER_LINKS contains seven main-folder offline fallbacks; the live
-     Folders tab is preferred during normal operation.
-     ================================================================== -->
+<!-- Set this to the Apps Script deployment for this environment. -->
 <script>
-const CONFIG = {
-
-  ENDPOINT:  "https://script.google.com/macros/s/AKfycbzyEZh8SD8LCle2LNtXtYfzW1tjAF2lk9tOVUWw30BHX_BvBHP9xcMpMMTNcbpkGJQ/exec",
-  SHEET_URL: "https://docs.google.com/spreadsheets/d/1ShGnzUGe6k6ZxQTpPDyMa1p3iDElr6Waz_HQyip8k48/edit",
-
-  /* Main-folder links only. They are offline fallbacks. During normal use,
-     Apps Script supplies the URL for every nested folder, so the upload button
-     opens the exact folder the operator selected. */
-  FOLDER_LINKS: {
-    "01 Clients":       "https://drive.google.com/drive/folders/1h_QTToB7McGqbVpbTzCBgvdOH--TIhUd",
-    "02 Content":       "https://drive.google.com/drive/folders/1ul98j1cuVhHgb7Cz5f6rIWVM8XSRSsq9",
-    "03 Market & Sell": "https://drive.google.com/drive/folders/1Ck6imz-C3ODVF-srS2q9zC7dCE0wUmST",
-    "04 People":        "https://drive.google.com/drive/folders/19diQ-jBWxo5ftmxWgh68eq2BpcbwTdMb",
-    "05 Research":      "https://drive.google.com/drive/folders/1sSX5uyYBHGu_p5KFouyXWNVzUNJrRpLo",
-    "06 Alliance IP":   "https://drive.google.com/drive/folders/1cKmxJ9EZuK88zcWWlyyU8LTWKEMjwv1j",
-    "99 Archive":       "https://drive.google.com/drive/folders/1l9fH0SQxY8WfhXr8T4J833Pz6GS9YAm6"
-  }
-};
+const CONFIG = { ENDPOINT: "https://script.google.com/macros/s/AKfycbzyEZh8SD8LCle2LNtXtYfzW1tjAF2lk9tOVUWw30BHX_BvBHP9xcMpMMTNcbpkGJQ/exec" };
 </script>
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -303,19 +280,22 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 .banner{font-family:var(--mono);font-size:10.5px;color:var(--ink-soft);background:var(--surface);
   border:1px solid var(--rule);border-radius:5px;padding:9px 11px;margin:16px 0 0;line-height:1.6}
 
-.results{margin-top:6px}
-.res{border-bottom:1px solid var(--rule-soft);padding:18px 0}
-.res:last-child{border-bottom:0}
-.res h3{font-size:15px;font-weight:500;margin:0 0 5px;line-height:1.4;word-break:break-word}
-.res .meta{font-family:var(--mono);font-size:10px;color:var(--ink-faint);letter-spacing:.04em;
-  margin-bottom:7px;line-height:1.6;word-break:break-word}
-.res .desc{font-size:13.5px;color:var(--ink-soft);margin:0 0 8px;line-height:1.55}
-.res .keywords{font-family:var(--mono);font-size:10px;color:var(--ink-faint);margin:0 0 11px;line-height:1.5}
-.res .acts{display:flex;gap:16px;flex-wrap:wrap}
-.res .acts a,.res .acts button{font-family:var(--mono);font-size:10px;letter-spacing:.08em;
-  text-transform:uppercase;color:var(--accent);background:none;border:0;padding:0 0 2px;
-  cursor:pointer;text-decoration:none;border-bottom:1px solid var(--rule)}
-.res .acts a:hover,.res .acts button:hover{border-bottom-color:var(--accent)}
+.results{display:grid;gap:12px;margin:14px 0}
+.res{padding:18px;border:1px solid var(--rule);border-radius:8px;overflow-wrap:anywhere}
+.res h3{font-size:19px;line-height:1.35;margin:0 0 5px;color:var(--ink)}
+.res .meta,.res .keywords{font-size:12px;color:var(--ink-soft);margin:4px 0}
+.res .folder-path{font-size:13px;font-weight:600;margin:6px 0;color:var(--ink)}
+.res .desc{font-size:14px;margin:10px 0;color:var(--ink-soft)}
+.res .acts{display:flex;align-items:center;gap:8px 16px;flex-wrap:wrap;margin-top:14px}
+.res .acts a,.res .acts button,.folder-link{font:inherit;font-size:14px;color:var(--accent);cursor:pointer}
+.res .acts button{border:0;background:transparent}
+.res .acts a,.res .acts button{display:inline-flex;align-items:center;min-height:44px}
+.res .acts .open-file{background:var(--accent);color:white;border-radius:5px;padding:0 16px;text-decoration:none;font-weight:600}
+#accessForm input,.dest-body input[type=file]{display:block;margin:8px 0 14px;max-width:100%}
+#p-admin .go{margin:4px 8px 4px 0}
+.banner .go{display:block;margin-top:8px}
+[hidden]{display:none!important}
+@media(max-width:420px){.res{padding:14px}.tab .num{display:none}.tab{letter-spacing:0}.res .acts{gap:4px 12px}}
 .old{display:inline-block;font-family:var(--mono);font-size:9px;letter-spacing:.08em;
   text-transform:uppercase;color:var(--warn);background:var(--warn-bg);border-radius:3px;
   padding:2px 6px;margin-left:6px;vertical-align:middle}
@@ -351,10 +331,19 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
     <div class="chip" id="chip" hidden>Next record<b id="chipId"></b></div>
   </div>
 
+  <form id="accessForm" class="panel">
+    <h2>Open the knowledge repository</h2>
+    <label for="accessKey">Repository access key</label>
+    <input id="accessKey" type="password" required autocomplete="current-password">
+    <button class="go" type="submit">Open repository</button>
+    <p class="note" role="status" id="accessStatus"></p>
+  </form>
+  <div id="workspace" hidden>
   <div class="tabs" role="tablist">
     <button class="tab" id="tab-upload"   role="tab" aria-selected="true"  aria-controls="p-upload"><span class="num">01</span>Upload</button>
     <button class="tab" id="tab-record"   role="tab" aria-selected="false" aria-controls="p-record"><span class="num">02</span>Record</button>
     <button class="tab" id="tab-retrieve" role="tab" aria-selected="false" aria-controls="p-retrieve"><span class="num">03</span>Retrieve</button>
+    <button class="tab" id="tab-admin" role="tab" aria-controls="p-admin" aria-selected="false" hidden>Manage keywords</button>
   </div>
 
   <!-- ============ 01 UPLOAD ============ -->
@@ -386,6 +375,8 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
     <div id="results"></div>
   </div>
 
+  <div class="panel" role="tabpanel" aria-labelledby="tab-admin" id="p-admin" hidden></div>
+  </div>
 </div>
 <div class="foot">Alliance Knowledge Repository</div>
 </div>
@@ -397,9 +388,6 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 /* ============================================================
    VOCABULARY
    ============================================================ */
-
-var DEFAULT_TOPICS = ["Artificial Intelligence","Leadership","Future of Work","Learning & Skills","Innovation"];
-var TOPICS = DEFAULT_TOPICS.slice();
 
 /* Only these seven main folders are fixed. Every folder below them is created
    by the operator as needed, including folders inside folders. */
@@ -427,31 +415,13 @@ DOCTYPES.forEach(function(g){ g[1].forEach(function(d){ FLAT_DOCTYPES.push(d); }
 
 var INDUSTRIES = ["Government","Healthcare","Banking & Finance","Education","Energy",
                   "Technology","Manufacturing","Retail","Logistics","Other"];
-var LANGUAGES = ["English","Arabic","English & Arabic","French","Multiple Languages","Other Language"];
-
-/* Stage/status is deliberately not included. Status already exists in the
-   index and the approved user-facing taxonomy should stay simple. */
 var TAG_GROUPS = [
-  { key:"topic", label:"Topic", values:[] },
-  { key:"purpose", label:"What is it for?", values:[
-    "Client Delivery","Learning Material","Sales Material","Marketing Material","Research",
-    "Alliance IP","Internal Use","Planning","Reporting","Proposal Support"
-  ]},
-  { key:"audience", label:"Who is it for?", values:[
-    "Executives","Senior Leaders","Managers","Employees","Participants","Facilitators",
-    "Coaches","HR","Learning & Development","Client Team","Internal Team"
-  ]},
-  { key:"usage", label:"How is it used?", values:[
-    "Workshop","Learning Programme","Presentation","Coaching","Keynote","Webinar",
-    "Meeting","Offsite","Self-Paced Learning","Train the Trainer"
-  ]},
-  { key:"features", label:"Style and features", values:[
-    "Editable","Print Ready","Presentation Ready","Client Ready","Interactive","Visual",
-    "One Page","Executive Summary","Customisable","Reusable","Practical","Strategic"
-  ]},
-  { key:"region", label:"Region", values:["UAE","Saudi Arabia","GCC","Middle East","MENA","Global"] },
-  { key:"language", label:"Language", values:LANGUAGES.slice() }
+  {key:"topic", label:"Topic"}, {key:"purpose", label:"What is it for?"},
+  {key:"audience", label:"Who is it for?"}, {key:"usage", label:"How is it used?"},
+  {key:"features", label:"Style and features"}, {key:"region", label:"Region"},
+  {key:"language", label:"Language"}, {key:"custom", label:"Other keywords"}
 ];
+TAG_GROUPS.forEach(function(g){ g.values = []; });
 var TAG_GROUP_MAP = {};
 TAG_GROUPS.forEach(function(g){ TAG_GROUP_MAP[g.key] = g; });
 
@@ -470,7 +440,7 @@ var QUICK_FILTERS = [
 var S = {
   clients: [],        // {name, industry, url}
   people:  [],        // {name, language, url}
-  topics:  DEFAULT_TOPICS.slice(),
+  topics:  [],
   folders: {},        // "path" -> url
   next:    "",
   dest:    null,      // {library, folderPath, client, person, url}
@@ -496,20 +466,19 @@ function esc(s){
 }
 function live(){ return /^https:\/\//.test(CONFIG.ENDPOINT); }
 
-function api(action, payload){
-  if (!live()) return Promise.reject(new Error("not configured"));
-  if (payload){
-    return fetch(CONFIG.ENDPOINT, {
-      method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
-      body: JSON.stringify(Object.assign({ action: action }, payload))
-    }).then(function(r){ return r.json(); });
-  }
-  return fetch(CONFIG.ENDPOINT + "?action=" + encodeURIComponent(action))
-    .then(function(r){ return r.json(); });
+var accessKey = "";
+async function api(action, payload){
+  if (!live()) throw new Error("The repository connection has not been configured.");
+  const response = await fetch(CONFIG.ENDPOINT, { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
+    body:JSON.stringify(Object.assign({}, payload, {action:action, accessKey:accessKey})) });
+  if (!response.ok) throw new Error("The repository service could not be reached.");
+  const data = await response.json();
+  if (!data.ok) throw new Error(data.error || "The request could not be completed.");
+  return data;
 }
 
 function uniqueValues(values){
-  var out = [], seen = {};
+  var out = [], seen = Object.create(null);
   (values || []).forEach(function(v){
     v = norm(v);
     if (!v || seen[key(v)]) return;
@@ -531,36 +500,24 @@ function togglePicked(list, kind, value){
   for (var i = 0; i < list.length; i++) if (facetKey(list[i].kind, list[i].value) === k){ found = i; break; }
   if (found > -1) list.splice(found, 1); else list.push({ kind:kind, value:value });
 }
-function canonicalTopic(value){
-  var cleanValue = norm(value);
-  var aliasKey = cleanValue.toLowerCase().replace(/[^a-z0-9&]+/g, " ").replace(/\s+/g, " ").trim();
-  var aliases = {
-    "ai":"Artificial Intelligence",
-    "a i":"Artificial Intelligence",
-    "genai":"Artificial Intelligence",
-    "gen ai":"Artificial Intelligence",
-    "fow":"Future of Work",
-    "l&d":"Learning & Skills",
-    "l and d":"Learning & Skills"
-  };
-  return aliases[aliasKey] || cleanValue;
-}
-function topicValues(){ return uniqueValues((S.topics || []).concat(DEFAULT_TOPICS)); }
-function groupValues(group){ return group.key === "topic" ? topicValues() : group.values.slice(); }
+function topicValues(){ return S.topics; }
+function groupValues(group){ return group.values; }
 
 /* ============================================================
    TABS
    ============================================================ */
 
-var TABS = ["upload","record","retrieve"];
+var TABS = ["upload","record","retrieve","admin"];
 
 function showTab(name){
+  if (name === "admin") { if (!S.admin) return; renderAdmin(); }
+  if (S.uploading) return;
   TABS.forEach(function(t){
     var on = (t === name);
     $("tab-" + t).setAttribute("aria-selected", String(on));
     $("p-" + t).hidden = !on;
   });
-  if (name === "record" && !$("recForm")) renderRecord();
+  if (name === "record" && (!$("recForm") || S.formFor !== (S.dest && (S.dest.library + "|" + S.dest.folderPath)))) renderRecord();
   if (name === "retrieve") { renderRetrieveFilters(); loadRecords(); setTimeout(function(){ $("q").focus(); }, 30); }
   window.scrollTo({ top:0, behavior:"smooth" });
 }
@@ -637,7 +594,7 @@ function folderChildren(library, parentPath){
   var seen = {};
   var prefix = library + " > " + (parentPath ? parentPath + " > " : "");
 
-  [CONFIG.FOLDER_LINKS || {}, S.folders || {}].forEach(function(map){
+  [S.folders || {}].forEach(function(map){
     Object.keys(map).forEach(function(path){
       if (path.indexOf(prefix) !== 0) return;
       var rest = path.slice(prefix.length);
@@ -989,7 +946,7 @@ function newFolderForm(L, options, prefill, confirmed){
 /* ---- destination screen ---- */
 
 function folderTarget(library, folderPath){
-  var maps = [S.folders || {}, CONFIG.FOLDER_LINKS || {}];
+  var maps = [S.folders || {}];
   var parts = pathParts(folderPath);
 
   /* Prefer the exact selected folder. If an old/stale map lacks that URL,
@@ -1031,51 +988,63 @@ function choose(library, folderPath, extra){
   d.appendChild(top);
 
   var body = el("div", "dest-body");
-  if (S.dest.url){
-    var a = el("a", "go", S.dest.exactFolder ? "Open this folder in Drive" : "Open " + S.dest.driveLabel + " in Drive");
-    a.href = S.dest.url; a.target = "_blank"; a.rel = "noopener";
-    body.appendChild(a);
-    body.appendChild(el("p", "note", S.dest.exactFolder
-      ? "Upload the file into the folder that opens."
-      : "In Drive, open " + S.dest.openPath.replace(/ > /g, " \u203A ") + " and upload the file there."));
-  } else {
-    body.appendChild(el("p", "note", "Open Google Drive, go to " + library + " \u203A " + folderPath.replace(/ > /g, " \u203A ") + ", and upload the file there."));
-  }
-
-  var rn = el("p", "rename", "Rename the file first:");
-  rn.appendChild(el("b", null, exampleName(library, folderPath)));
-  body.appendChild(rn);
-  d.appendChild(body);
-  box.appendChild(d);
-
-  var stack = el("div", "stackbtn");
-  var go = el("button", "go", "Uploaded it \u2014 record it now \u2192");
-  go.type = "button";
-  go.addEventListener("click", function(){
-    var formKey = S.dest.library + "|" + S.dest.folderPath;
-    if (S.formFor !== formKey) renderRecord();
-    showTab("record");
+  const dest = S.dest;
+  const label = el("label", "lab", "Choose file from laptop");
+  label.htmlFor = "uploadFile";
+  const picker = input("file", ""); picker.id = "uploadFile";
+  const upload = el("button", "go", "Upload to this folder");
+  const status = el("p", "note", "Up to 10 MB per file.");
+  status.setAttribute("role", "status");
+  upload.disabled = true;
+  let uploadId = "";
+  picker.addEventListener("change", function(){ uploadId = ""; upload.disabled = !picker.files.length; });
+  upload.addEventListener("click", async function(){
+    const file = picker.files[0];
+    if (!file || S.uploading) return;
+    if (file.size > 10 * 1024 * 1024) { status.textContent = "For files over 10 MB, use the Drive folder link below."; return; }
+    S.uploading = true;
+    picker.disabled = upload.disabled = back.disabled = manual.disabled = true;
+    $("backbar").hidden = true;
+    status.textContent = "Uploading " + file.name + "…";
+    try {
+      if (!uploadId) uploadId = (await api("reserveUpload")).id;
+      const content = await new Promise(function(resolve, reject){
+        const reader = new FileReader();
+        reader.onload = function(){ resolve(String(reader.result).split(",")[1]); };
+        reader.onerror = function(){ reject(new Error("Could not read the selected file.")); };
+        reader.readAsDataURL(file);
+      });
+      const saved = await api("upload", {id:uploadId, library:library, folderPath:folderPath, name:file.name,
+        size:file.size, mime:file.type, content:content});
+      if (!safeLink(saved.url)) throw new Error("Drive did not return a file link. Retry this upload.");
+      S.uploading = false;
+      dest.uploaded = saved;
+      renderRecord(); showTab("record");
+      status.textContent = "Uploaded " + saved.name;
+      upload.textContent = "Uploaded";
+      picker.disabled = false;
+      picker.value = "";
+    } catch (err) {
+      status.textContent = err.message + " You can retry with the same file.";
+      upload.disabled = picker.disabled = false;
+    } finally {
+      S.uploading = false; back.disabled = manual.disabled = false; backbar();
+    }
   });
-  var back = el("button", "go ghost", "Choose a different folder");
-  back.type = "button";
+  body.appendChild(label); body.appendChild(picker); body.appendChild(upload); body.appendChild(status);
+  if (target.exact && safeLink(target.url)){
+    const folder = el("a", "folder-link", "Open folder in Drive");
+    folder.href = target.url; folder.target = "_blank"; folder.rel = "noopener";
+    body.appendChild(folder);
+  }
+  d.appendChild(body); box.appendChild(d);
+  const stack = el("div", "stackbtn");
+  const manual = el("button", "go ghost", "Record an existing Drive file");
+  manual.addEventListener("click", function(){ delete dest.uploaded; renderRecord(); showTab("record"); });
+  const back = el("button", "go ghost", "Choose a different folder");
   back.addEventListener("click", function(){ S.dest = null; renderPicker(); });
-  stack.appendChild(go); stack.appendChild(back);
-  box.appendChild(stack);
+  stack.appendChild(manual); stack.appendChild(back); box.appendChild(stack);
 }
-
-function exampleName(library, folderPath){
-  var y = new Date().getFullYear();
-  var first = firstPathName(folderPath);
-  var last = lastPathName(folderPath) || "Document";
-  if (library === "01 Clients") return y + " - " + first + " - Document Name - v1";
-  if (library === "04 People")  return y + " - " + first + " - Biography - v1";
-  if (library === "02 Content") return y + " - " + last + " - Participant Workbook - v1";
-  return y + " - " + last + " - Document Name - v1";
-}
-
-/* ============================================================
-   TAB 2 - RECORD
-   ============================================================ */
 
 /* Ask only for information the chosen folder cannot supply automatically. */
 function plan(dest){
@@ -1098,7 +1067,7 @@ function defaultRecordLanguage(){
     var p = S.people.filter(function(x){ return key(x.name) === key(S.dest.person); })[0];
     if (p && p.language){
       if (key(p.language) === "english and arabic") return "English & Arabic";
-      if (LANGUAGES.indexOf(p.language) > -1) return p.language;
+      if (TAG_GROUP_MAP.language.values.indexOf(p.language) > -1) return p.language;
     }
   }
   return "English";
@@ -1107,7 +1076,7 @@ function defaultRecordLanguage(){
 function newRecordState(){
   return {
     docTypes: [],
-    selected: [{ kind:"language", value:defaultRecordLanguage() }],
+    selected: TAG_GROUP_MAP.language.values.includes(defaultRecordLanguage()) ? [{ kind:"language", value:defaultRecordLanguage() }] : [],
     activeTag: "topic"
   };
 }
@@ -1129,6 +1098,7 @@ function renderRecord(){
   }
 
   S.record = newRecordState();
+  if (S.dest.uploaded) box.appendChild(el("p", "banner", "Uploaded to Drive. Save the details below to make this file searchable."));
   var P = plan(S.dest);
 
   var strip = el("div", "strip");
@@ -1167,6 +1137,11 @@ function renderRecord(){
   form.appendChild(field("desc", "Description", textarea(),
                          "What is this file, and when would someone use it?"));
   form.appendChild(field("link", "Drive link", input("url", "Right-click the file \u203A Share \u203A Copy link")));
+  if (S.dest.uploaded) {
+    form.querySelector("#title").value = S.dest.uploaded.name;
+    form.querySelector("#link").value = S.dest.uploaded.url;
+    form.querySelector("#link").readOnly = true;
+  }
   form.appendChild(field("doc", "What type of document is this?", documentTypePicker(),
                          "Tap everything that applies."));
 
@@ -1351,67 +1326,8 @@ function renderKeywordBrowser(box, mode){
     });
     panel.appendChild(grid);
 
-    if (mode === "record" && group.key === "topic") panel.appendChild(topicAdder(box));
     box.appendChild(panel);
   }
-
-  if (mode === "record") box.appendChild(customKeywordAdder(box));
-}
-
-function topicAdder(browser){
-  var wrap = el("div", "custom-keyword");
-  wrap.appendChild(el("div", "custom-title", "Add another topic"));
-  var row = el("div", "inline-add");
-  var i = input("text", "Type a new topic");
-  i.id = "newTopic"; i.maxLength = 80;
-  var add = el("button", "mini", "Add"); add.type = "button";
-  var msg = el("div", "inline-msg"); msg.id = "topicMsg";
-  function save(){
-    var value = canonicalTopic(i.value);
-    msg.className = "inline-msg";
-    if (value.length < 2){ msg.className += " badmsg"; msg.textContent = "Type the topic first."; return; }
-    if (value.length > 80 || value.indexOf(",") > -1){ msg.className += " badmsg"; msg.textContent = "Use one topic, without commas."; return; }
-    var existing = topicValues().filter(function(t){ return key(t) === key(value); })[0];
-    var finalValue = existing || value;
-    if (!existing){
-      S.topics.push(value);
-      S.topics = uniqueValues(S.topics);
-      TOPICS = S.topics.slice();
-      if (live()) api("addTopic", { topic:value }).catch(function(){ /* record submission also saves it */ });
-    }
-    if (!hasPicked(S.record.selected, "topic", finalValue)) S.record.selected.push({ kind:"topic", value:finalValue });
-    renderKeywordBrowser(browser, "record");
-    clr("tags");
-  }
-  add.addEventListener("click", save);
-  i.addEventListener("keydown", function(ev){ if (ev.key === "Enter"){ ev.preventDefault(); save(); } });
-  row.appendChild(i); row.appendChild(add);
-  wrap.appendChild(row); wrap.appendChild(msg);
-  return wrap;
-}
-
-function customKeywordAdder(browser){
-  var wrap = el("div", "custom-keyword");
-  wrap.appendChild(el("div", "custom-title", "Add your own keyword"));
-  var row = el("div", "inline-add");
-  var i = input("text", "Project, programme or campaign name");
-  i.id = "customKeyword"; i.maxLength = 80;
-  var add = el("button", "mini", "Add"); add.type = "button";
-  var msg = el("div", "inline-msg"); msg.id = "keywordMsg";
-  function save(){
-    var value = norm(i.value);
-    msg.className = "inline-msg";
-    if (value.length < 2){ msg.className += " badmsg"; msg.textContent = "Type the keyword first."; return; }
-    if (value.length > 80 || value.indexOf(",") > -1){ msg.className += " badmsg"; msg.textContent = "Use one keyword, without commas."; return; }
-    if (!hasPicked(S.record.selected, "custom", value)) S.record.selected.push({ kind:"custom", value:value });
-    renderKeywordBrowser(browser, "record");
-    clr("tags");
-  }
-  add.addEventListener("click", save);
-  i.addEventListener("keydown", function(ev){ if (ev.key === "Enter"){ ev.preventDefault(); save(); } });
-  row.appendChild(i); row.appendChild(add);
-  wrap.appendChild(row); wrap.appendChild(msg);
-  return wrap;
 }
 
 function recordTagValues(){
@@ -1461,7 +1377,7 @@ function submitRecord(ev){
 
   var topics = pickedValues(S.record.selected, "topic");
   var tags = recordTagValues().join(", ");
-  if (!topics.length){
+  if (!topics.length && S.topics.length){
     S.record.activeTag = "topic";
     renderKeywordBrowser($("recordKeywordBrowser"), "record");
     bad("tags", "Tap at least one topic."); n++;
@@ -1498,12 +1414,13 @@ function submitRecord(ev){
     description: $("desc").value.trim(),
     tags:        tags,
     driveLink:   link,
+    uploadId:    S.dest.uploaded && S.dest.uploaded.id,
     docType:     S.record.docTypes.join(", "),
     topics:      topics.join(", "),
     client:      clientVal,
     people:      people.join(", "),
     industry:    clientVal ? industryOf(clientVal) : ($("industry") ? $("industry").value : ""),
-    language:    languages.join(", ") || "English",
+    language:    languages.join(", "),
     library:     S.dest.library,
     folderPath:  S.dest.folderPath,
     year:        titleYear(title),
@@ -1522,11 +1439,11 @@ function submitRecord(ev){
       if (d.next) { S.next = d.next; $("chipId").textContent = d.next; $("chip").hidden = false; }
       recordDone(d.id, payload);
     })
-    .catch(function(){
+    .catch(function(err){
       sending = false;
       go.disabled = false;
       go.textContent = "Record file";
-      fe.textContent = "Could not reach the Sheet. Press Record file again - nothing was lost.";
+      fe.textContent = err.message;
       fe.classList.add("on");
     });
 }
@@ -1555,7 +1472,7 @@ function recordDone(id, p){
   var stack = el("div", "stackbtn");
   var again = el("button", "go", "Record another in this folder");
   again.type = "button";
-  again.addEventListener("click", renderRecord);
+  again.addEventListener("click", function(){ delete S.dest.uploaded; renderRecord(); });
   var another = el("button", "go ghost", "Upload something else");
   another.type = "button";
   another.addEventListener("click", function(){ S.nav = { lib:null, path:"" }; renderPicker(); showTab("upload"); });
@@ -1573,6 +1490,7 @@ function recordDone(id, p){
 var FACETS = [];
 function addFacet(phrase, kind, value){
   if (!phrase) return;
+  if ((kind === "topic" || kind === "language") && !TAG_GROUP_MAP[kind].values.includes(value)) return;
   FACETS.push({ p:String(phrase).toLowerCase(), kind:kind, value:value });
 }
 
@@ -1634,7 +1552,7 @@ function buildFacets(){
 
   addFacet("english and arabic", "language", "English & Arabic");
   addFacet("bilingual", "language", "English & Arabic");
-  LANGUAGES.forEach(function(l){ addFacet(l, "language", l); });
+  TAG_GROUP_MAP.language.values.forEach(function(l){ addFacet(l, "language", l); });
 
   (S.records || []).forEach(function(r){
     if (r.year) addFacet(String(r.year), "year", String(r.year));
@@ -1901,7 +1819,7 @@ function renderRetrieveFilters(){
 }
 
 function loadRecords(){
-  if (S.records || S.loadingRecords){ renderRetrieveFilters(); return; }
+  if (S.records || S.loadingRecords){ renderRetrieveFilters(); if (S.records) doSearch(); return; }
   if (!live()){ S.records = S.records || []; buildFacets(); renderRetrieveFilters(); doSearch(); return; }
   S.loadingRecords = true;
   $("results").innerHTML = '<div class="spin">Loading the index\u2026</div>';
@@ -1911,7 +1829,7 @@ function loadRecords(){
     buildFacets(); renderRetrieveFilters(); doSearch();
   }).catch(function(){
     S.loadingRecords = false;
-    S.records = [];
+    S.records = null;
     renderRetrieveFilters();
     $("results").innerHTML = '<div class="spin">Could not load the index. Check your connection and reopen this tab.</div>';
   });
@@ -1938,12 +1856,12 @@ function doSearch(){
 
   if (!S.records) return;
   var parsed = mergedSearch(q);
-  if (!String(q).trim() && !parsed.facets.length){
-    out.innerHTML = '<div class="spin">' + (S.records.length ? S.records.length + " files indexed" : "Nothing recorded yet") + '</div>';
+  if (!S.records.length){
+    out.appendChild(el("p", "banner", "No files recorded yet. Upload a file and save its details to see it here."));
     return;
   }
-
-  var res = runSearch(q, parsed);
+  var browsing = !String(q).trim() && !parsed.facets.length;
+  var res = browsing ? {hits:S.records.slice().reverse().map(r => ({r:r}))} : runSearch(q, parsed);
 
   var bar = el("div", "readback");
   parsed.facets.forEach(function(f){
@@ -1963,7 +1881,7 @@ function doSearch(){
     bar.appendChild(b);
   });
   parsed.free.forEach(function(t){ bar.appendChild(el("span", "fchip free", '"' + t + '"')); });
-  if (parsed.facets.length || parsed.free.length){
+  if (browsing || parsed.facets.length || parsed.free.length){
     bar.appendChild(el("span", "count", res.hits.length + (res.hits.length === 1 ? " result" : " results")));
     rb.appendChild(bar);
   }
@@ -1981,13 +1899,23 @@ function doSearch(){
   if (!res.hits.length){
     var none = el("div", "banner");
     none.textContent = "Nothing found. Remove a filter or try fewer words.";
-    out.appendChild(none);
+    var clear = el("button", "go ghost", "Clear filters");
+    clear.addEventListener("click", function(){
+      $("q").value = ""; S.retrieve.filters = []; S.removed = [];
+      renderRetrieveFilters(); doSearch(); $("q").focus();
+    });
+    none.appendChild(clear); out.appendChild(none);
     return;
   }
 
   var list = el("div", "results");
-  res.hits.slice(0, 40).forEach(function(h){ list.appendChild(resultCard(h.r)); });
   out.appendChild(list);
+  var shown = 0, more = el("button", "go ghost", "Show more files");
+  function nextPage(){
+    res.hits.slice(shown, shown + 40).forEach(hit => list.appendChild(resultCard(hit.r)));
+    shown += 40; more.hidden = shown >= res.hits.length;
+  }
+  more.addEventListener("click", nextPage); out.appendChild(more); nextPage();
 }
 
 function resultCard(r){
@@ -1998,20 +1926,28 @@ function resultCard(r){
   if (r.status === "Superseded" || r.status === "Archived") h.appendChild(el("span", "old", r.status));
   c.appendChild(h);
 
-  var bits = [r.docType, r.fileFormat, r.fileSize, r.library + " \u203A " + r.folderPath];
+  var bits = [r.fileFormat, r.docType, r.fileSize];
   if (r.client) bits.push(r.client);
   if (r.topics) bits.push(r.topics);
   if (r.year) bits.push(String(r.year));
   c.appendChild(el("div", "meta", bits.filter(Boolean).join("  \u00B7  ")));
 
+  c.appendChild(el("p", "folder-path", [r.library, r.folderPath].filter(Boolean).join(" > ").split(" > ").join(" › ")));
   if (r.description) c.appendChild(el("p", "desc", r.description));
   if (r.tags) c.appendChild(el("p", "keywords", "Tags: " + r.tags));
 
   var acts = el("div", "acts");
   if (safeLink(r.driveLink)){
-    var a = el("a", null, "Open in Drive");
+    var a = el("a", "open-file", "Open file");
     a.href = r.driveLink; a.target = "_blank"; a.rel = "noopener";
     acts.appendChild(a);
+  }
+  if (!safeLink(r.driveLink)) acts.appendChild(el("span", "note", "File link unavailable"));
+  var folder = S.folders[r.library + " > " + r.folderPath];
+  if (safeLink(folder)){
+    var openFolder = el("a", null, "Open folder");
+    openFolder.href = folder; openFolder.target = "_blank"; openFolder.rel = "noopener";
+    acts.appendChild(openFolder);
   }
   var relBox = el("div", "rel");
   relBox.hidden = true;
@@ -2061,23 +1997,105 @@ Array.prototype.forEach.call(document.querySelectorAll("[data-eg]"), function(b)
    BOOT
    ============================================================ */
 
-function boot(){
+function renderAdmin(initialGroup, notice){
+  const panel = $("p-admin");
+  panel.innerHTML = "";
+  panel.appendChild(el("h2", null, "Manage keywords"));
+  const group = el("select");
+  TAG_GROUPS.forEach(g => group.appendChild(new Option(g.label, g.key)));
+  group.value = initialGroup || "topic";
+  panel.appendChild(field("adminGroup", "Keyword group", group));
+  const current = el("select");
+  current.appendChild(new Option("Add a new keyword", ""));
+  TAG_GROUP_MAP[group.value].values.forEach(v => current.appendChild(new Option(v, v)));
+  panel.appendChild(field("adminCurrent", "Keyword", current));
+  const editor = el("div"); panel.appendChild(editor);
+  const message = el("p", "note", notice || "");
+  message.setAttribute("role", "status"); panel.appendChild(message);
+  let version = 0;
+  group.addEventListener("change", () => renderAdmin(group.value));
+  current.addEventListener("change", () => edit(""));
+  async function edit(noticeText){
+    const original = current.value, request = ++version;
+    editor.innerHTML = ""; message.textContent = noticeText;
+    let count = 0;
+    if (original){
+      message.textContent = "Checking where this keyword is used…";
+      try {
+        const usage = await api("keywordUsage", {group:group.value, original:original});
+        if (version !== request) return;
+        count = usage.count;
+        message.textContent = "Used on " + count + (count === 1 ? " record." : " records.");
+      } catch (err){ if (version === request) message.textContent = err.message; return; }
+    }
+    const name = input("text", "Keyword name"); name.value = original; name.maxLength = 80;
+    editor.appendChild(field("keywordName", original ? "Edit name" : "New keyword", name));
+    const save = el("button", "go", original ? "Save name" : "Add keyword");
+    editor.appendChild(save);
+    save.addEventListener("click", () => submit(original ? "rename" : "add", name.value));
+    if (original){
+      const remove = el("button", "go ghost", "Remove keyword…"); editor.appendChild(remove);
+      remove.addEventListener("click", function(){
+        editor.innerHTML = "";
+        editor.appendChild(el("p", null, "Remove “" + original + "” from the list and " + count + (count === 1 ? " record?" : " records?")));
+        const replace = el("select");
+        replace.appendChild(new Option("Remove without replacement", ""));
+        TAG_GROUP_MAP[group.value].values.filter(v => v !== original).forEach(v => replace.appendChild(new Option(v,v)));
+        editor.appendChild(field("replacement", "Replacement keyword", replace));
+        const confirm = el("button", "go", "Confirm removal");
+        confirm.addEventListener("click", () => submit("remove", replace.value));
+        const cancel = el("button", "go ghost", "Cancel"); cancel.addEventListener("click", () => edit(""));
+        editor.appendChild(confirm); editor.appendChild(cancel);
+      });
+    }
+    async function submit(operation, value){
+      const controls = panel.querySelectorAll("button,select,input");
+      controls.forEach(c => c.disabled = true);
+      message.textContent = "Saving…";
+      try {
+        const saved = await api("editKeyword", {operation, group:group.value, original, value, count});
+        applyKeywords(saved.keywords); S.records = null;
+        renderAdmin(group.value, operation === "remove" ? "Keyword removed." : "Keyword saved.");
+      } catch (err){ message.textContent = err.message; }
+      finally { controls.forEach(c => c.disabled = false); }
+    }
+  }
+  edit(notice || "");
+}
+
+function applyKeywords(catalog){
+  TAG_GROUPS.forEach(g => { g.values = (catalog[g.key] || []).slice(); });
+  S.topics = TAG_GROUP_MAP.topic.values;
+  const valid = x => !TAG_GROUP_MAP[x.kind] || TAG_GROUP_MAP[x.kind].values.includes(x.value);
+  S.retrieve.filters = S.retrieve.filters.filter(valid);
+  if (S.record) {
+    S.record.selected = S.record.selected.filter(valid);
+    if ($("recordKeywordBrowser")) renderKeywordBrowser($("recordKeywordBrowser"), "record");
+  }
   buildFacets();
-  renderPicker();
-  if (!live()) return;
-  api("init").then(function(d){
-    if (!d || !d.ok) return;
-    S.clients = d.clients || [];
-    S.people  = d.people  || [];
-    S.topics  = uniqueValues((d.topics || []).concat(DEFAULT_TOPICS));
-    TOPICS    = S.topics.slice();
-    S.folders = d.folders || {};
-    S.next    = d.next || "";
-    if (S.next){ $("chipId").textContent = S.next; $("chip").hidden = false; }
-    buildFacets();
-    renderPicker();
-    renderRetrieveFilters();
-  }).catch(function(){ /* offline: the fixed folders still work */ });
+}
+
+function boot(){
+  const form = $("accessForm"), status = $("accessStatus");
+  if (!live()) status.textContent = "The repository owner needs to connect the Google deployment.";
+  form.addEventListener("submit", async function(ev){
+    ev.preventDefault();
+    const button = form.querySelector("button");
+    if (button.disabled) return;
+    button.disabled = true; accessKey = $("accessKey").value.trim();
+    status.textContent = "Opening repository…";
+    try {
+      const d = await api("init");
+      if (!d.keywords) throw new Error("Connect the updated Apps Script deployment.");
+      S.admin = d.admin; S.clients = d.clients; S.people = d.people; S.folders = d.folders; S.next = d.next;
+      applyKeywords(d.keywords);
+      $("tab-admin").hidden = !d.admin;
+      $("chipId").textContent = d.next; $("chip").hidden = false;
+      $("accessKey").value = ""; form.hidden = true; $("workspace").hidden = false;
+      renderPicker(); renderRetrieveFilters();
+    } catch (err) { accessKey = ""; status.textContent = err.message; }
+    finally { button.disabled = false; }
+  });
 }
 boot();
 
