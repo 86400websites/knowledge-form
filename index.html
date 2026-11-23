@@ -293,6 +293,9 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
 .res .acts .open-file{background:var(--accent);color:white;border-radius:5px;padding:0 16px;text-decoration:none;font-weight:600}
 #accessForm input,.dest-body input[type=file]{display:block;margin:8px 0 14px;max-width:100%}
 #p-admin .go{margin:4px 8px 4px 0}
+.keyword-loading{display:flex;align-items:center;gap:10px;margin:12px 0;color:var(--ink);font-weight:600}
+.keyword-loading::before{content:"";width:1em;height:1em;border:2px solid var(--rule);border-top-color:var(--accent);border-radius:50%;animation:keyword-spin .8s linear infinite}
+@keyframes keyword-spin{to{transform:rotate(360deg)}}
 .banner .go{display:block;margin-top:8px}
 [hidden]{display:none!important}
 @media(max-width:420px){.res{padding:14px}.tab .num{display:none}.tab{letter-spacing:0}.res .acts{gap:4px 12px}}
@@ -1956,16 +1959,24 @@ function renderAdmin(initialGroup, notice){
   current.addEventListener("change", () => edit(""));
   async function edit(noticeText){
     const original = current.value, request = ++version;
-    editor.innerHTML = ""; message.textContent = noticeText;
+    editor.innerHTML = ""; message.className = "note"; message.textContent = noticeText;
+    editor.setAttribute("aria-busy", original ? "true" : "false");
     let count = 0;
     if (original){
-      message.textContent = "Checking where this keyword is used…";
+      message.className = "keyword-loading";
+      message.textContent = "Checking keyword…";
       try {
         const usage = await api("keywordUsage", {group:group.value, original:original});
         if (version !== request) return;
         count = usage.count;
         message.textContent = "Used on " + count + (count === 1 ? " record." : " records.");
       } catch (err){ if (version === request) message.textContent = err.message; return; }
+      finally {
+        if (version === request) {
+          message.className = "note";
+          editor.setAttribute("aria-busy", "false");
+        }
+      }
     }
     const name = input("text", "Keyword name"); name.value = original; name.maxLength = 80;
     editor.appendChild(field("keywordName", original ? "Edit name" : "New keyword", name));
