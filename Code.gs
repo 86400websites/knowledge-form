@@ -140,8 +140,9 @@ function prepareFreshRepository() {
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    if (!SETTINGS.getProperty("ADMIN_KEY") || !SETTINGS.getProperty("TEAM_KEY") ||
-        SETTINGS.getProperty("ADMIN_KEY") === SETTINGS.getProperty("TEAM_KEY"))
+    const adminDigest = accessDigest_("ADMIN_KEY");
+    const teamDigest = accessDigest_("TEAM_KEY");
+    if (!adminDigest || !teamDigest || adminDigest === teamDigest)
       throw new Error("Set distinct TEAM_KEY and ADMIN_KEY values in Script properties first.");
     PARENT_ID = SETTINGS.getProperty("PARENT_ID");
     SHEET_ID = SETTINGS.getProperty("SHEET_ID");
@@ -293,13 +294,24 @@ function doGet() {
   return json_({ ok: true, service: "Alliance Knowledge Repository" });
 }
 
+function keyDigest_(key) {
+  return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, key, Utilities.Charset.UTF_8)
+    .map(byte => ("0" + ((byte + 256) % 256).toString(16)).slice(-2)).join("");
+}
+
+function accessDigest_(property) {
+  const plain = SETTINGS.getProperty(property);
+  return plain ? keyDigest_(plain) : SETTINGS.getProperty(property + "_SHA256");
+}
+
 function doPost(e) {
   const lock = LockService.getScriptLock();
   try {
     const d = JSON.parse(e.postData.contents);
     const key = d.accessKey;
-    const admin = !!key && key === SETTINGS.getProperty("ADMIN_KEY");
-    if (!admin && (!key || key !== SETTINGS.getProperty("TEAM_KEY"))) {
+    const digest = typeof key === "string" && key.length > 0 && key.length <= 512 ? keyDigest_(key) : "";
+    const admin = !!digest && digest === accessDigest_("ADMIN_KEY");
+    if (!admin && (!digest || digest !== accessDigest_("TEAM_KEY"))) {
       throw new Error("Enter a valid repository access key.");
     }
     const ss = SpreadsheetApp.openById(SHEET_ID);
