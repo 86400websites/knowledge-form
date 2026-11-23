@@ -1075,7 +1075,7 @@ function renderRecord(draft){
     });
     form.appendChild(field("topic","Topic",topic));
   }
-  const more = el("details","disclosure"); more.appendChild(el("summary",null,"More details (optional)"));
+  const more = el("details","disclosure"); more.appendChild(el("summary",null,"Tags and Keywords"));
   const P = plan(S.dest);
   if(P.client === "ask" && S.clients.length) {
     const select = el("select"); select.id="client"; select.appendChild(new Option("Choose a client",""));

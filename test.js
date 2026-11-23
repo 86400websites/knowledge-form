@@ -513,7 +513,7 @@ async function main() {
   check('title is first and client is inferred from the folder',formIds[0] === 'f-title' && app.S.dest.client === 'ADNOC GAS');
   check('no manual link field or Record tab', !html.includes('id="tab-record"') && !formIds.includes('f-link'));
   check('record form uses tappable multi-select document types', !!document.byId.docChoices && findByText(document.byId.docChoices, 'button', 'Framework'));
-  check('record form has one combined Tags and Keywords section', !!document.byId.recordKeywordBrowser && recordBody.textContent.includes('More details (optional)'));
+  check('record form has one combined Tags and Keywords section', !!document.byId.recordKeywordBrowser && !!findByText(recordBody, 'summary', 'Tags and Keywords'));
   check('Topic is visible without opening optional details', recordBody.textContent.includes('Topic') && !!document.byId.topic);
   check('approved tag groups are present', ['What is it for?','Who is it for?','How is it used?','Style and features','Region','Language'].every(x => recordBody.textContent.includes(x)));
   const approvedTagValues = [
