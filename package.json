@@ -1,0 +1,10 @@
+{
+  "name": "alliance-knowledge-repository",
+  "version": "3.0.0",
+  "private": true,
+  "description": "Alliance Knowledge Repository with simplified multi-select recording and tappable tag retrieval",
+  "scripts": {
+    "test": "node test.js",
+    "check:apps-script": "node -e \"new (require('node:vm').Script)(require('node:fs').readFileSync('Code.gs','utf8'))\""
+  }
+}

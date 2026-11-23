@@ -3,7 +3,7 @@ Google setup for the current deployment
 
 1. Sign in as the owner who deploys the current web app. Open the existing Apps Script project from the current index spreadsheet under Extensions > Apps Script. Verify the signed-in email in Google. The /exec URL alone does not identify the deployment owner.
 
-2. Save the revised Code.gs in that project. In Services (+), enable Drive API v3 (Drive) and Google Sheets API v4 (Sheets). If the project uses a standard Google Cloud project, enable those APIs there too.
+2. Save the revised Code.gs and its appsscript.json manifest in that project. Run authorizeDeviceUploads in the Apps Script editor as the deployment owner. In Services (+), enable Drive API v3 (Drive) and Google Sheets API v4 (Sheets). If the project uses a standard Google Cloud project, enable those APIs there too.
 
 3. In Project Settings > Script properties, configure distinct team and admin keys. Use TEAM_KEY_SHA256 and ADMIN_KEY_SHA256 to store the lowercase hexadecimal SHA-256 digests of two randomly generated keys. Operators enter the original keys at the form. A manual setup can instead use TEAM_KEY and ADMIN_KEY with the original values. These take precedence over the digests if present. Distribute the team key to operators and the admin key only to the client administrator. The form keeps the entered key in memory until the tab is closed or refreshed. Drive file viewing permissions are managed separately.
 
@@ -14,4 +14,4 @@ Google setup for the current deployment
 
 5. Rehearse the release before changing production. Create a temporary web-app deployment of this version, execute as the deploying owner and allow access from the GitHub Pages form. Use its /exec URL in a local copy of index.html for the smoke test in GO_LIVE_CHECKLIST.txt. When ready, edit the original web-app deployment under Deploy > Manage deployments, select New version, and deploy. This keeps the current /exec URL configured in the release. Coordinate that change with the GitHub Pages release because the previous frontend uses a different API.
 
-6. For Alliance handover, run fresh setup as the Alliance deployment owner in an Alliance-owned project with its own Script properties. To carry forward a tuned keyword list, copy just the Keywords tab to the new spreadsheet before running setupEverything. Use the Alliance /exec URL in the frontend if the deployment changes. Confirm its new index is empty and opening its files works for an Alliance user. Test data stays with the test account.
+6. For the new Google account follow DRIVE_HANDOVER.md to keep the current spreadsheet and public URL.

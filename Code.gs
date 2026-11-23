@@ -294,6 +294,16 @@ function doGet() {
   return json_({ ok: true, service: "Alliance Knowledge Repository" });
 }
 
+// Run from the Apps Script editor when connecting a deployment owner.
+function authorizeDeviceUploads() {
+  ScriptApp.requireAllScopes(ScriptApp.AuthMode.FULL);
+  const response = UrlFetchApp.fetch("https://www.googleapis.com/drive/v3/about?fields=storageQuota(limit)", {
+    headers:{Authorization:"Bearer " + ScriptApp.getOAuthToken()}, muteHttpExceptions:true
+  });
+  if (response.getResponseCode() !== 200) throw new Error("Drive permission check failed (" + response.getResponseCode() + ").");
+  console.log("Drive upload permissions confirmed.");
+}
+
 function keyDigest_(key) {
   return Utilities.computeDigest(Utilities.DigestAlgorithm.SHA_256, key, Utilities.Charset.UTF_8)
     .map(byte => ("0" + ((byte + 256) % 256).toString(16)).slice(-2)).join("");
@@ -322,6 +332,8 @@ function doPost(e) {
     }
     if (d.action === "records") return json_({ok:true, records:readRecords_(ss)});
     if (d.action === "reserveUpload") return json_({ok:true, id:Drive.Files.generateIds({count:1, space:"drive"}).ids[0]});
+    if (d.action === "beginUpload") return beginUpload_(d);
+    if (d.action === "uploadStatus") return uploadStatus_(d);
     if (d.action === "editKeyword" || d.action === "keywordUsage") {
       if (!admin) throw new Error("An admin key is required to manage keywords.");
     }
@@ -329,6 +341,10 @@ function doPost(e) {
     if (d.website) return json_({ok:true, id:"AKR-0000"});
     switch (d.action) {
       case "upload": return upload_(d);
+      case "saveUpload": {
+        const file = verifyUpload_(d);
+        return record_(Object.assign({}, d, {driveLink:file.webViewLink || "https://drive.google.com/open?id=" + file.id}));
+      }
       case "editKeyword":
       case "keywordUsage": return manageKeyword_(ss, d);
       case "addClient": return addClient_(d);
@@ -345,6 +361,64 @@ function doPost(e) {
 }
 
 const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
+
+const DEVICE_UPLOAD_LIMIT = 1000000000;
+
+function uploadFolder_(d) {
+  const parts = folderPathParts_(d.folderPath);
+  if (!parts.length || !LIBRARIES.includes(d.library)) throw new Error("Choose a folder for this file.");
+  const library = findChildFolder_(repoRoot_(), d.library);
+  const dest = library && resolveFolderPath_(library, parts);
+  if (!dest) throw new Error("The folder has moved. Choose its new location.");
+  return dest.folder;
+}
+
+function beginUpload_(d) {
+  if (!Number.isSafeInteger(d.size) || d.size < 0 || d.size > DEVICE_UPLOAD_LIMIT)
+    throw new Error("Choose a file of 1 GB or less.");
+  if (!/^[\w-]{10,200}$/.test(d.uploadId) || !s_(d.name) || d.name.length > 255 || /[\/\\\x00-\x1f]/.test(d.name))
+    throw new Error("Choose a file with a valid name.");
+  const parent = uploadFolder_(d).getId();
+  const mime = /^[\w.+-]+\/[\w.+-]+$/.test(d.mime) && !d.mime.startsWith("application/vnd.google-apps.")
+    ? d.mime : "application/octet-stream";
+  const response = UrlFetchApp.fetch("https://www.googleapis.com/upload/drive/v3/files?uploadType=resumable&supportsAllDrives=true&fields=id", {
+    method:"post", contentType:"application/json", followRedirects:false, muteHttpExceptions:true,
+    headers:{Authorization:"Bearer " + ScriptApp.getOAuthToken(), Origin:"https://86400websites.github.io",
+      "X-Upload-Content-Type":mime, "X-Upload-Content-Length":String(d.size)},
+    payload:JSON.stringify({id:d.uploadId, name:d.name, mimeType:mime, parents:[parent],
+      appProperties:{repositoryUpload:d.uploadId, repositoryBytes:String(d.size)}})
+  });
+  if (response.getResponseCode() === 409) { verifyUpload_(d); return json_({ok:true, complete:true}); }
+  if (response.getResponseCode() !== 200) throw new Error("Drive could not start the upload (" + response.getResponseCode() + "). Try again.");
+  const headers = response.getAllHeaders();
+  const url = headers[Object.keys(headers).find(k => k.toLowerCase() === "location")];
+  if (!/^https:\/\/(?:www|content)\.googleapis\.com\/upload\/drive\//.test(String(url))) throw new Error("Drive did not return an upload session.");
+  return json_({ok:true, session:url});
+}
+
+function verifyUpload_(d) {
+  if (!/^[\w-]{10,200}$/.test(d.uploadId)) throw new Error("Choose a device file first.");
+  const file = Drive.Files.get(d.uploadId,{fields:"id,size,parents,appProperties,webViewLink,trashed",supportsAllDrives:true});
+  const props = file.appProperties || {};
+  if (file.trashed || props.repositoryUpload !== file.id || props.repositoryBytes !== String(file.size) ||
+      Number(file.size) > DEVICE_UPLOAD_LIMIT || !(file.parents || []).includes(uploadFolder_(d).getId()))
+    throw new Error("Drive has not confirmed this file in the selected folder.");
+  return file;
+}
+
+function uploadStatus_(d) {
+  if (!Number.isSafeInteger(d.size) || d.size < 0 || d.size > DEVICE_UPLOAD_LIMIT ||
+      !/^https:\/\/(www|content)\.googleapis\.com\/upload\/drive\/v3\/files\?[^#\s]{1,3072}$/.test(d.session) ||
+      !/[?&]upload_id=[\w-]+/.test(d.session)) throw new Error("Invalid Drive upload session.");
+  const response = UrlFetchApp.fetch(d.session,{method:"put",payload:"",
+    headers:{"Content-Range":"bytes */"+d.size},followRedirects:false,muteHttpExceptions:true});
+  const code=response.getResponseCode();
+  if(code===200 || code===201) return json_({ok:true,complete:true});
+  if(code!==308) throw new Error("Drive could not confirm upload progress ("+code+").");
+  const headers=response.getAllHeaders(), range=headers[Object.keys(headers).find(k=>k.toLowerCase()==="range")];
+  const match=/^bytes=0-(\d+)$/i.exec(range || "");
+  return json_({ok:true,offset:match ? Number(match[1])+1 : 0});
+}
 
 function upload_(d) {
   const name = s_(d.name);
@@ -489,7 +563,7 @@ function record_(d) {
     if (driveFileId_(d.driveLink) !== d.uploadId) throw new Error("The uploaded file link has changed.");
     const rows = sh.getRange(2,1,sh.getLastRow()-1,5).getValues();
     const saved = rows.find(row => driveFileId_(row[4]) === d.uploadId);
-    if (saved) return json_({ok:true,id:saved[0],next:formatId_(nextNumber_(sh))});
+    if (saved) return json_({ok:true,id:saved[0],next:formatId_(nextNumber_(sh)),driveLink:saved[4]});
   }
   const id = formatId_(nextNumber_(sh));
   const now = new Date();
@@ -513,7 +587,7 @@ function record_(d) {
   ];
   sh.appendRow(row.map(value => typeof value === "string" && value.startsWith("=") ? "'" + value : value));
 
-  return json_({ ok: true, id: id, next: formatId_(nextNumber_(sh)) });
+  return json_({ ok: true, id: id, next: formatId_(nextNumber_(sh)), driveLink:d.driveLink });
 }
 
 

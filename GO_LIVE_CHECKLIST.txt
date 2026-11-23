@@ -1,9 +1,9 @@
 ALLIANCE KNOWLEDGE REPOSITORY – RELEASE CHECK
 
 [ ] Confirm the account that owns the existing deployment. Complete SETUP.txt and verify the test index and folder belong to that account.
-[ ] Sign in with the team key. Create a nested test folder, select a small local file and upload. Confirm Drive shows exactly one file in that folder and the Record form contains its name and link.
-[ ] Save its details. Find it by normal typed search and by tapping the same Topic or Tag. Check Open file and Open folder with an ordinary team account. Check the result on a narrow screen.
-[ ] Sign in with the admin key. Add a keyword, use it on a test record, rename it, then remove it with a replacement. Confirm the usage count, updated search results and absence of that keyword on reopening the form.
-[ ] Confirm a team key cannot manage keywords. Test a failed upload and a retry. For files over 10 MB use the Drive folder link and record the existing file.
+[ ] Use Add a file on a phone-sized screen and desktop. Pick a local file, folder, document type and topic. Save once. Verify the selected folder, file contents, index row and success link.
+[ ] Use normal typed search and try tapping the same Topic or Tag in Filters. Open the file. Open More to check Open folder.
+[ ] Test a 1,000,000,000-byte file and reject a file one byte larger on the client and backend. Interrupt a multipart transfer. Retry a failed index write and verify one Drive file and one searchable row. Use isolated rehearsal storage.
+[ ] Verify team and admin access, keyword rename/removal and affected records.
 [ ] Coordinate deploying the new version at the existing Apps Script /exec URL and publishing index.html to the existing GitHub Pages main branch. Smoke-test the published site. If rollback is needed, restore the previous frontend and Apps Script deployment version together.
-[ ] At client handover verify Alliance's own fresh index has zero records and the intended keyword catalog. Keep the test files with the team.
+[ ] For client handover follow DRIVE_HANDOVER.md and verify the chosen existing-record policy.

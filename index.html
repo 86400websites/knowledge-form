@@ -315,6 +315,18 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
   letter-spacing:.1em;text-transform:uppercase;color:var(--ink-faint)}
 .hp{position:absolute;left:-9999px;width:1px;height:1px;overflow:hidden}
 @media (prefers-reduced-motion:reduce){ *{transition:none !important;animation:none !important} }
+.tabs .tab{font:600 15px var(--sans);letter-spacing:0;text-transform:none}.tab[aria-current=page]{color:var(--accent);border-bottom:3px solid var(--accent)}
+.page{max-width:720px}.panel h2{font:600 clamp(23px,4vw,30px)/1.2 var(--sans);letter-spacing:-.035em;margin:0 0 20px}
+.drop-zone{border:1px dashed var(--accent);border-radius:8px;background:var(--surface);padding:18px;display:flex;align-items:center;gap:12px;position:relative;flex-wrap:wrap;overflow-wrap:anywhere}
+.drop-zone strong{color:var(--accent)}.drop-zone span,.folder-path{color:var(--ink-soft);font-size:13px}
+.drop-zone input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.drop-zone:focus-within,summary:focus-visible{outline:2px solid var(--accent);outline-offset:3px}
+.disclosure{border:1px solid var(--rule);border-radius:7px;margin:12px 0;padding:0 14px}.disclosure summary,.result-menu summary,.admin-menu summary{cursor:pointer;padding:10px 0;color:var(--ink);font-size:14px}
+.disclosure[open]{padding-bottom:12px}.destination summary strong{display:block;color:var(--accent);margin:3px 0 0}
+.err-file{color:var(--warn);margin:4px 0;font-size:13px}.admin-menu{position:relative}.admin-menu button{position:absolute;right:0;z-index:3;min-width:150px;padding:12px;background:var(--paper);border:1px solid var(--rule);border-radius:5px}
+progress{display:block;width:100%;accent-color:var(--accent)}.text-action,.result-menu button{background:transparent;border:0;color:var(--accent);cursor:pointer;padding:12px}
+.res .acts .result-menu{margin-left:auto}.result-menu[open] a,.result-menu[open] button{display:block}.saved-title{overflow-wrap:anywhere}
+#recForm .f{margin-top:14px}#recForm .f>label{font-size:13px;text-transform:none;letter-spacing:0}#go:disabled{opacity:.55}
 </style>
 </head>
 
@@ -328,7 +340,7 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
       <img src="data:image/png;base64,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" alt="Alliance">
       <span class="wordmark">Alliance<br>Knowledge Repository</span>
     </div>
-    <div class="chip" id="chip" hidden>Next record<b id="chipId"></b></div>
+    <details id="adminMenu" class="admin-menu" hidden><summary>Admin</summary><button id="tab-admin" type="button">Manage keywords</button></details>
   </div>
 
   <form id="accessForm" class="panel">
@@ -339,41 +351,33 @@ input:focus,select:focus,textarea:focus{outline:none;background:var(--paper);
     <p class="note" role="status" id="accessStatus"></p>
   </form>
   <div id="workspace" hidden>
-  <div class="tabs" role="tablist">
-    <button class="tab" id="tab-upload"   role="tab" aria-selected="true"  aria-controls="p-upload"><span class="num">01</span>Upload</button>
-    <button class="tab" id="tab-record"   role="tab" aria-selected="false" aria-controls="p-record"><span class="num">02</span>Record</button>
-    <button class="tab" id="tab-retrieve" role="tab" aria-selected="false" aria-controls="p-retrieve"><span class="num">03</span>Retrieve</button>
-    <button class="tab" id="tab-admin" role="tab" aria-controls="p-admin" aria-selected="false" hidden>Manage keywords</button>
-  </div>
-
-  <!-- ============ 01 UPLOAD ============ -->
-  <div class="panel" id="p-upload" role="tabpanel" aria-labelledby="tab-upload">
-    <h2>Choose or create a folder, upload the file, then record it.</h2>
-    <div class="backbar" id="backbar" hidden></div>
-    <div id="picker"></div>
-  </div>
-
-  <!-- ============ 02 RECORD ============ -->
-  <div class="panel" id="p-record" role="tabpanel" aria-labelledby="tab-record" hidden>
-    <div id="recordBody"></div>
-  </div>
-
-  <!-- ============ 03 RETRIEVE ============ -->
-  <div class="panel" id="p-retrieve" role="tabpanel" aria-labelledby="tab-retrieve" hidden>
-    <div class="searchwrap">
-      <label for="q" class="lab">Search</label>
-      <input type="search" id="q" autocomplete="off" placeholder="Type anything you remember about the file">
-      <p class="retrieve-help">Search normally, or tap the filters below.</p>
-      <p class="eg">Try
-        <button type="button" data-eg="ADNOC">ADNOC</button> ·
-        <button type="button" data-eg="arabic facilitator">arabic facilitator</button> ·
-        <button type="button" data-eg="leadership workbook">leadership workbook</button>
-      </p>
+  <nav class="tabs" aria-label="Repository">
+    <button class="tab" id="tab-upload" aria-controls="p-upload" aria-current="page">Add a file</button>
+    <button class="tab" id="tab-retrieve" aria-controls="p-retrieve">Find a file</button>
+  </nav>
+  <section class="panel" id="p-upload" aria-labelledby="tab-upload">
+    <div id="addControls">
+      <h2>Add a file</h2>
+      <label id="dropZone" class="drop-zone" for="uploadFile">
+        <strong id="fileCaption">Choose file</strong><span id="dropHint">or drop a file here</span>
+        <input id="uploadFile" type="file">
+      </label>
+      <p id="fileError" role="alert" class="err-file"></p>
+      <details id="folderPicker" class="disclosure destination">
+        <summary><span>Where should this file go?</span><strong id="folderCaption">Choose a folder</strong><small id="changeFolder" hidden>Change</small></summary>
+        <div class="backbar" id="backbar" hidden></div>
+        <div id="picker"></div>
+      </details>
     </div>
-    <div class="retrieve-tools" id="retrieveFilters"></div>
+    <div id="recordBody"></div>
+  </section>
+  <section class="panel" id="p-retrieve" aria-labelledby="tab-retrieve" hidden>
+    <h2>Find a file</h2>
+    <input type="search" id="q" aria-label="Search files" autocomplete="off" placeholder="Search by title, keyword or client">
+    <details class="disclosure" id="filters"><summary>Filters</summary><div class="retrieve-tools" id="retrieveFilters"></div></details>
     <div id="readback"></div>
     <div id="results"></div>
-  </div>
+  </section>
 
   <div class="panel" role="tabpanel" aria-labelledby="tab-admin" id="p-admin" hidden></div>
   </div>
@@ -507,23 +511,18 @@ function groupValues(group){ return group.values; }
    TABS
    ============================================================ */
 
-var TABS = ["upload","record","retrieve","admin"];
-
+var TABS = ["upload","retrieve","admin"];
 function showTab(name){
-  if (name === "admin") { if (!S.admin) return; renderAdmin(); }
-  if (S.uploading) return;
-  TABS.forEach(function(t){
-    var on = (t === name);
-    $("tab-" + t).setAttribute("aria-selected", String(on));
-    $("p-" + t).hidden = !on;
+  if (S.uploading || (name === "admin" && !S.admin)) return;
+  $("adminMenu").open = false;
+  TABS.forEach(t => {
+    $("p-"+t).hidden = name !== t;
+    $("tab-"+t).setAttribute("aria-current", name === t ? "page" : "false");
   });
-  if (name === "record" && (!$("recForm") || S.formFor !== (S.dest && (S.dest.library + "|" + S.dest.folderPath)))) renderRecord();
-  if (name === "retrieve") { renderRetrieveFilters(); loadRecords(); setTimeout(function(){ $("q").focus(); }, 30); }
-  window.scrollTo({ top:0, behavior:"smooth" });
+  if (name === "admin") renderAdmin();
+  if (name === "retrieve"){ renderRetrieveFilters(); loadRecords(); $("q").focus(); }
 }
-TABS.forEach(function(t){
-  $("tab-" + t).addEventListener("click", function(){ showTab(t); });
-});
+TABS.forEach(t => $("tab-"+t).addEventListener("click", () => showTab(t)));
 
 /* ============================================================
    TAB 1 — UPLOAD
@@ -531,7 +530,7 @@ TABS.forEach(function(t){
 
 /* One button that always goes up exactly one folder level. */
 function goBack(){
-  if (S.dest){ S.dest = null; renderPicker(); return; }
+
   if (S.nav.path){
     var parts = pathParts(S.nav.path);
     parts.pop();
@@ -662,14 +661,14 @@ function renderPicker(){
   /* A file may be uploaded only after at least one folder has been chosen.
      This prevents loose files from collecting in the seven main folders. */
   if (parentPath){
-    box.appendChild(pickButton("Upload a file to this folder", lastPathName(parentPath), function(){
+    box.appendChild(pickButton("Use this folder", lastPathName(parentPath), function(){
       choose(L.id, parentPath, destinationExtra(L.id, parentPath));
     }, "upload"));
   }
 
-  if (!children.length){
+  if (!children.length && !parentPath){
     box.appendChild(el("p", "sub", parentPath
-      ? "No folders inside this folder yet. Create one below, or upload here."
+      ? ""
       : "No folders here yet. Create the first one below."));
   }
 
@@ -973,78 +972,46 @@ function folderUrl(library, folderPath){
   return folderTarget(library, folderPath || "").url;
 }
 
-function choose(library, folderPath, extra){
-  var target = folderTarget(library, folderPath);
-  S.dest = Object.assign({ library:library, folderPath:folderPath,
-                           url:target.url, driveLabel:target.label,
-                           openPath:target.openPath, exactFolder:target.exact }, extra || {});
-  backbar();
-  var box = $("picker");
-  box.innerHTML = "";
-
-  var d = el("div", "dest");
-  var top = el("div", "dest-top");
-  top.appendChild(el("div", "dest-path", library + " \u203A " + folderPath.replace(/ > /g, " \u203A ")));
-  d.appendChild(top);
-
-  var body = el("div", "dest-body");
-  const dest = S.dest;
-  const label = el("label", "lab", "Choose file from laptop");
-  label.htmlFor = "uploadFile";
-  const picker = input("file", ""); picker.id = "uploadFile";
-  const upload = el("button", "go", "Upload to this folder");
-  const status = el("p", "note", "Up to 10 MB per file.");
-  status.setAttribute("role", "status");
-  upload.disabled = true;
-  let uploadId = "";
-  picker.addEventListener("change", function(){ uploadId = ""; upload.disabled = !picker.files.length; });
-  upload.addEventListener("click", async function(){
-    const file = picker.files[0];
-    if (!file || S.uploading) return;
-    if (file.size > 10 * 1024 * 1024) { status.textContent = "For files over 10 MB, use the Drive folder link below."; return; }
-    S.uploading = true;
-    picker.disabled = upload.disabled = back.disabled = manual.disabled = true;
-    $("backbar").hidden = true;
-    status.textContent = "Uploading " + file.name + "…";
-    try {
-      if (!uploadId) uploadId = (await api("reserveUpload")).id;
-      const content = await new Promise(function(resolve, reject){
-        const reader = new FileReader();
-        reader.onload = function(){ resolve(String(reader.result).split(",")[1]); };
-        reader.onerror = function(){ reject(new Error("Could not read the selected file.")); };
-        reader.readAsDataURL(file);
-      });
-      const saved = await api("upload", {id:uploadId, library:library, folderPath:folderPath, name:file.name,
-        size:file.size, mime:file.type, content:content});
-      if (!safeLink(saved.url)) throw new Error("Drive did not return a file link. Retry this upload.");
-      S.uploading = false;
-      dest.uploaded = saved;
-      renderRecord(); showTab("record");
-      status.textContent = "Uploaded " + saved.name;
-      upload.textContent = "Uploaded";
-      picker.disabled = false;
-      picker.value = "";
-    } catch (err) {
-      status.textContent = err.message + " You can retry with the same file.";
-      upload.disabled = picker.disabled = false;
-    } finally {
-      S.uploading = false; back.disabled = manual.disabled = false; backbar();
-    }
-  });
-  body.appendChild(label); body.appendChild(picker); body.appendChild(upload); body.appendChild(status);
-  if (target.exact && safeLink(target.url)){
-    const folder = el("a", "folder-link", "Open folder in Drive");
-    folder.href = target.url; folder.target = "_blank"; folder.rel = "noopener";
-    body.appendChild(folder);
-  }
-  d.appendChild(body); box.appendChild(d);
-  const stack = el("div", "stackbtn");
-  const manual = el("button", "go ghost", "Record an existing Drive file");
-  manual.addEventListener("click", function(){ delete dest.uploaded; renderRecord(); showTab("record"); });
-  const back = el("button", "go ghost", "Choose a different folder");
-  back.addEventListener("click", function(){ S.dest = null; renderPicker(); });
-  stack.appendChild(manual); stack.appendChild(back); box.appendChild(stack);
+function currentDraft(){
+  return S.record && $("recForm") ? {title:$("title").value,desc:$("desc").value,record:S.record,
+    client:$("client")?.value,industry:$("industry")?.value,people:ticked("person")} : null;
 }
+function choose(library, folderPath, extra){
+  const draft = currentDraft();
+  const target = folderTarget(library, folderPath);
+  S.dest = Object.assign({library,folderPath,url:target.url,exactFolder:target.exact},extra);
+  $("folderCaption").textContent = library+" › "+pathParts(folderPath).join(" › ");
+  $("changeFolder").hidden = false;
+  $("folderPicker").open = false;
+  renderRecord(draft);
+}
+
+const FILE_LIMIT = 1000000000;
+const CHUNK_BYTES = 16 * 1024 * 1024;
+var transfer = null;
+function selectFile(file){
+  if (S.uploading || (transfer && transfer.id)) return;
+  $("fileError").textContent = "";
+  if (!file || file.size > FILE_LIMIT) {
+    if (file) $("fileError").textContent = "This file is larger than 1 GB. Choose a smaller file.";
+    $("uploadFile").value = ""; transfer = null;
+    $("fileCaption").textContent = "Choose file"; $("dropHint").textContent = "or drop a file here";
+  } else {
+    transfer = {file, id:"", session:"", offset:0, complete:false, probe:false};
+    $("fileCaption").textContent = file.name; $("dropHint").textContent = "Change file";
+    if ($("title")) $("title").value = file.name;
+    if (!S.dest) $("folderPicker").open = true;
+  }
+  refreshSave();
+}
+$("uploadFile").addEventListener("change", e => selectFile(e.target.files[0]));
+["dragover","drop"].forEach(type => $("dropZone").addEventListener(type, e => {
+  e.preventDefault();
+  if (type === "drop") {
+    if (e.dataTransfer.files.length === 1) selectFile(e.dataTransfer.files[0]);
+    else $("fileError").textContent = "Choose one file at a time.";
+  }
+}));
 
 /* Ask only for information the chosen folder cannot supply automatically. */
 function plan(dest){
@@ -1077,93 +1044,52 @@ function newRecordState(){
   return {
     docTypes: [],
     selected: TAG_GROUP_MAP.language.values.includes(defaultRecordLanguage()) ? [{ kind:"language", value:defaultRecordLanguage() }] : [],
-    activeTag: "topic"
+    activeTag: ""
   };
 }
 
-function renderRecord(){
-  var box = $("recordBody");
-  box.innerHTML = "";
-  S.formFor = S.dest ? (S.dest.library + "|" + S.dest.folderPath) : null;
+function renderRecord(draft){
+  const box = $("recordBody"); box.innerHTML = "";
+  if (!S.dest) return;
+  S.record = draft ? draft.record : newRecordState();
+  const form = el("form"); form.id = "recForm"; form.noValidate = true;
+  const title = input("text",""); title.required=true; title.value = draft ? draft.title : transfer ? transfer.file.name : "";
+  form.appendChild(field("title","Title",title));
+  const desc = textarea(); desc.required=true; desc.value = draft ? draft.desc : "";
+  form.appendChild(field("desc","Description",desc,"A sentence about what’s inside."));
+  const typePicker = documentTypePicker(), typeDetails = el("details","disclosure");
+  const typeLabel = el("summary",null,"Choose document type"); typeLabel.id = "typeCaption";
+  typeDetails.append(typeLabel,typePicker);
+  form.appendChild(field("doc","Document type",typeDetails));
 
-  if (!S.dest){
-    var e = el("div", "empty");
-    e.appendChild(el("p", null, "Pick a folder first so this form knows where the file lives."));
-    var b = el("button", "go", "Go to Upload");
-    b.type = "button";
-    b.addEventListener("click", function(){ showTab("upload"); });
-    e.appendChild(b);
-    box.appendChild(e);
-    return;
-  }
-
-  S.record = newRecordState();
-  if (S.dest.uploaded) box.appendChild(el("p", "banner", "Uploaded to Drive. Save the details below to make this file searchable."));
-  var P = plan(S.dest);
-
-  var strip = el("div", "strip");
-  strip.appendChild(el("div", "p", S.dest.library + " \u203A " + S.dest.folderPath));
-  var ch = el("button", null, "change");
-  ch.type = "button";
-  ch.addEventListener("click", function(){ S.nav = { lib:null, path:"" }; renderPicker(); showTab("upload"); });
-  strip.appendChild(ch);
-  box.appendChild(strip);
-
-  var form = document.createElement("form");
-  form.id = "recForm";
-  form.noValidate = true;
-
-  /* Client is deliberately first. */
-  if (P.client === "locked"){
-    form.appendChild(field("client", "Client", locked(S.dest.client)));
-  } else if (P.client === "ask"){
-    var cs = document.createElement("select");
-    cs.id = "client";
-    cs.appendChild(new Option("Choose a client", ""));
-    S.clients.forEach(function(c){ cs.appendChild(new Option(c.name, c.name)); });
-    cs.appendChild(new Option("+ Create a new client folder", "__new"));
-    cs.addEventListener("change", function(){
-      if (cs.value === "__new"){
-        cs.value = "";
-        S.nav = { lib:LIBS[0], path:"" };
-        renderPicker(); showTab("upload"); newNameForm("client");
-      }
+  if (S.topics.length){
+    const topic = el("select"); topic.id="topic"; topic.required=true;
+    topic.appendChild(new Option("Choose a topic",""));
+    S.topics.forEach(v => topic.appendChild(new Option(v,v)));
+    const selected = pickedValues(S.record.selected,"topic")[0] || "";
+    topic.value = selected;
+    topic.addEventListener("change",() => {
+      S.record.selected = S.record.selected.filter(x => x.kind !== "topic");
+      if(topic.value) S.record.selected.push({kind:"topic",value:topic.value});
+      refreshSave();
     });
-    form.appendChild(field("client", "Client", cs));
+    form.appendChild(field("topic","Topic",topic));
   }
-
-  form.appendChild(field("title", "Title", input("text", "2026 - ABC Company - Document Name - v1"),
-                         "Same as the file name in Drive."));
-  form.appendChild(field("desc", "Description", textarea(),
-                         "What is this file, and when would someone use it?"));
-  form.appendChild(field("link", "Drive link", input("url", "Right-click the file \u203A Share \u203A Copy link")));
-  if (S.dest.uploaded) {
-    form.querySelector("#title").value = S.dest.uploaded.name;
-    form.querySelector("#link").value = S.dest.uploaded.url;
-    form.querySelector("#link").readOnly = true;
+  const more = el("details","disclosure"); more.appendChild(el("summary",null,"More details (optional)"));
+  const P = plan(S.dest);
+  if(P.client === "ask" && S.clients.length) {
+    const select = el("select"); select.id="client"; select.appendChild(new Option("Choose a client",""));
+    S.clients.forEach(c => select.appendChild(new Option(c.name,c.name)));
+    if(draft?.client) select.value=draft.client;
+    more.appendChild(field("client","Client",select));
   }
-  form.appendChild(field("doc", "What type of document is this?", documentTypePicker(),
-                         "Tap everything that applies."));
-
-  if (P.people === "locked"){
-    form.appendChild(field("people", "Person", locked(S.dest.person)));
-  } else if (P.people === "ask" && S.people.length){
-    form.appendChild(field("people", "People", tickList("person", S.people.map(function(p){ return p.name; }), []),
-                           "Tap all the people connected to this file."));
+  if(P.people === "ask" && S.people.length) more.appendChild(field("people","People",tickList("person",S.people.map(p=>p.name),draft?.people || [])));
+  if(P.industry === "ask"){
+    const select = el("select"); select.id="industry"; select.appendChild(new Option("Choose an industry",""));
+    INDUSTRIES.forEach(v=> select.appendChild(new Option(v,v))); more.appendChild(field("industry","Industry",select));
+    if(draft?.industry) select.value=draft.industry;
   }
-
-  /* Industry stays out of the normal form and appears only for Research. */
-  if (P.industry === "ask"){
-    var is = document.createElement("select");
-    is.id = "industry";
-    is.appendChild(new Option("Choose an industry if relevant", ""));
-    INDUSTRIES.forEach(function(v){ is.appendChild(new Option(v, v)); });
-    form.appendChild(field("industry", "Industry", is));
-  }
-
-  form.appendChild(field("tags", "Tags and keywords", keywordBrowser("record"),
-                         "Tap all the keywords and tags that describe this file. You can choose as many as you need."));
-
+  more.appendChild(keywordBrowser("record")); form.appendChild(more);
   var hp = el("div", "hp");
   hp.setAttribute("aria-hidden", "true");
   var hpi = el("input"); hpi.type = "text"; hpi.id = "website"; hpi.tabIndex = -1; hpi.autocomplete = "off";
@@ -1172,7 +1098,9 @@ function renderRecord(){
 
   var actions = el("div");
   actions.style.marginTop = "26px";
-  var go = el("button", "go", "Record file");
+  var progress = el("progress"); progress.id = "uploadProgress"; progress.max=100; progress.hidden=true; actions.appendChild(progress);
+  var status=el("p","note"); status.id="saveStatus"; status.setAttribute("role","status"); actions.appendChild(status);
+  var go = el("button", "go", "Save file");
   go.type = "submit"; go.id = "go";
   actions.appendChild(go);
   var fe = el("div", "formerr"); fe.id = "formerr"; fe.setAttribute("role", "alert");
@@ -1180,7 +1108,12 @@ function renderRecord(){
   form.appendChild(actions);
 
   box.appendChild(form);
-  form.addEventListener("submit", submitRecord);
+  [title,desc].forEach(control=>{
+    control.addEventListener("blur",()=>{ if(!control.value.trim()) bad(control.id,control===title?"Enter a title.":"Add a short description."); });
+    control.addEventListener("input",()=>{if(control.value.trim()) clr(control.id);});
+  });
+  form.addEventListener("input", refreshSave); form.addEventListener("change",refreshSave);
+  form.addEventListener("submit", submitRecord); refreshSave();
 }
 
 function field(id, label, control, help){
@@ -1248,7 +1181,7 @@ function renderDocumentTypePicker(box){
     b.addEventListener("click", function(){
       var i = S.record.docTypes.indexOf(v);
       if (i > -1) S.record.docTypes.splice(i, 1); else S.record.docTypes.push(v);
-      renderDocumentTypePicker(box);
+      renderDocumentTypePicker(box); refreshSave();
       clr("doc");
     });
     grid.appendChild(b);
@@ -1271,11 +1204,11 @@ function renderKeywordBrowser(box, mode){
   box.innerHTML = "";
   var selections = keywordSelections(mode);
 
-  if (mode === "record" && selections.length){
+  if (mode === "record" && selections.some(x=>x.kind !== "topic")){
     var selected = el("div", "selected-box");
     selected.appendChild(el("div", "selected-title", "Selected"));
     var selectedList = el("div", "selected-list");
-    selections.forEach(function(item){
+    selections.filter(x=>x.kind !== "topic").forEach(function(item){
       var pill = el("button", "selected-pill");
       pill.type = "button";
       pill.appendChild(document.createTextNode(item.value));
@@ -1292,6 +1225,7 @@ function renderKeywordBrowser(box, mode){
 
   var tabs = el("div", "meta-tabs");
   TAG_GROUPS.forEach(function(group){
+    if (mode === "record" && group.key === "topic") return;
     var open = activeTagGroup(mode) === group.key;
     var count = pickedValues(selections, group.key).length;
     var b = el("button", "meta-tab");
@@ -1351,136 +1285,141 @@ function clr(id){
   f.querySelector(".err").textContent = "";
 }
 
-var sending = false;
+
 
 function titleYear(title){
   var hit = String(title || "").match(/(?:^|\D)((?:19|20)\d{2})(?:\D|$)/);
   return hit ? Number(hit[1]) : new Date().getFullYear();
 }
 
-function submitRecord(ev){
-  ev.preventDefault();
-  if (sending) return;
-  var fe = $("formerr");
-  fe.classList.remove("on");
-
-  var n = 0;
-  if (!$("title").value.trim()){ bad("title", "Enter the title. It must match the file name in Drive."); n++; } else clr("title");
-  if ($("desc").value.trim().length < 20){ bad("desc", "Write one or two clear sentences - at least 20 characters."); n++; } else clr("desc");
-
-  var link = $("link").value.trim();
-  if (!link){ bad("link", "Paste the Google Drive link."); n++; }
-  else if (!/^https:\/\/(drive|docs)\.google\.com\//.test(link)){ bad("link", "Use a Google Drive or Google Docs link."); n++; }
-  else clr("link");
-
-  if (!S.record.docTypes.length){ bad("doc", "Tap at least one document type."); n++; } else clr("doc");
-
-  var topics = pickedValues(S.record.selected, "topic");
-  var tags = recordTagValues().join(", ");
-  if (!topics.length && S.topics.length){
-    S.record.activeTag = "topic";
-    renderKeywordBrowser($("recordKeywordBrowser"), "record");
-    bad("tags", "Tap at least one topic."); n++;
-  } else if (tags.length > 2000){ bad("tags", "Remove a few selections so the tags stay under 2,000 characters."); n++; }
-  else clr("tags");
-
-  var P = plan(S.dest);
-  var clientVal = P.client === "locked" ? S.dest.client
-                : P.client === "ask" ? ($("client") ? $("client").value : "") : "";
-  if (P.client === "ask"){
-    if (!clientVal || clientVal === "__new"){ bad("client", "Choose the client this is for."); n++; } else clr("client");
-  }
-
-  if (n){
-    fe.textContent = (n === 1 ? "One field needs attention." : n + " fields need attention.") + " Marked above.";
-    fe.classList.add("on");
-    var first = document.querySelector(".f.bad");
-    if (first){
-      first.scrollIntoView({ block:"center", behavior:"smooth" });
-      var fc = first.querySelector("input,select,textarea");
-      if (fc) fc.focus({ preventScroll:true });
-    }
-    return;
-  }
-
-  if ($("website").value) return;
-
-  var people = P.people === "locked" ? [S.dest.person] : (P.people === "ask" ? ticked("person") : []);
-  var languages = pickedValues(S.record.selected, "language");
-  var title = $("title").value.trim();
-
-  var payload = {
-    title:       title,
-    description: $("desc").value.trim(),
-    tags:        tags,
-    driveLink:   link,
-    uploadId:    S.dest.uploaded && S.dest.uploaded.id,
-    docType:     S.record.docTypes.join(", "),
-    topics:      topics.join(", "),
-    client:      clientVal,
-    people:      people.join(", "),
-    industry:    clientVal ? industryOf(clientVal) : ($("industry") ? $("industry").value : ""),
-    language:    languages.join(", "),
-    library:     S.dest.library,
-    folderPath:  S.dest.folderPath,
-    year:        titleYear(title),
-    website:     ""
-  };
-
-  sending = true;
-  var go = $("go");
-  go.disabled = true;
-  go.textContent = "Recording\u2026";
-
-  api("record", payload)
-    .then(function(d){
-      if (!d || !d.ok) throw new Error(d && d.error ? d.error : "failed");
-      S.records = null;
-      if (d.next) { S.next = d.next; $("chipId").textContent = d.next; $("chip").hidden = false; }
-      recordDone(d.id, payload);
-    })
-    .catch(function(err){
-      sending = false;
-      go.disabled = false;
-      go.textContent = "Record file";
-      fe.textContent = err.message;
-      fe.classList.add("on");
-    });
+function refreshSave(){
+  const go = $("go"); if (!go || !S.record || !S.dest) return;
+  $("typeCaption").textContent = S.record.docTypes.join(", ") || "Choose document type";
+  const missing = [];
+  if (!transfer) missing.push("a file");
+  if (!$("title").value.trim()) missing.push("a title");
+  if (!$("desc").value.trim()) missing.push("a description");
+  if (!S.record.docTypes.length) missing.push("a document type");
+  if (S.topics.length && !pickedValues(S.record.selected,"topic").length) missing.push("a topic");
+  go.disabled = S.uploading || missing.length > 0;
+  if (!S.uploading) $("saveStatus").textContent = missing.length ? "To save, add " + missing.join(", ") + "." : "";
 }
 
-function recordDone(id, p){
-  var box = $("recordBody");
-  box.innerHTML = "";
-  sending = false;
+function showProgress(bytes){
+  const pct = transfer.file.size ? Math.min(99, Math.floor(bytes*100/transfer.file.size)) : 0;
+  const bar = $("uploadProgress"), text = "Uploading · " + pct + "%";
+  bar.hidden = false;
+  bar.value = pct;
+  if ($("saveStatus").textContent !== text) $("saveStatus").textContent = text;
+}
 
-  box.appendChild(el("div", "stub-kicker", "Record created"));
-  box.appendChild(el("div", "stub-id", id));
-  box.appendChild(el("div", "perf"));
+function putChunk(state, probe){
+  return new Promise((resolve,reject)=>{
+    const file = state.file, start = state.offset, end = Math.min(start + CHUNK_BYTES, file.size);
+    const xhr = new XMLHttpRequest();
+    xhr.open("PUT",state.session);
+    xhr.timeout = 180000;
+    if (probe || file.size) xhr.setRequestHeader("Content-Range",probe ? "bytes */"+file.size : "bytes "+start+"-"+(end-1)+"/"+file.size);
+    if (!probe) xhr.setRequestHeader("Content-Type",file.type || "application/octet-stream");
+    xhr.upload.onprogress = e => { if (!probe) showProgress(start+e.loaded); };
+    xhr.onload = () => resolve({code:xhr.status, range:xhr.getResponseHeader("Range")});
+    xhr.onerror = xhr.ontimeout = xhr.onabort = () => reject(new Error("Connection interrupted."));
+    xhr.send(probe ? null : file.slice(start,end));
+  });
+}
 
-  var dl = document.createElement("dl");
-  dl.style.margin = "0";
-  [["Title", p.title], ["Folder", p.library + " \u203A " + p.folderPath], ["Type", p.docType],
-   ["Topics", p.topics], ["Tags", p.tags || "-"]]
-    .forEach(function(r){
-      var row = el("div", "row");
-      row.appendChild(el("dt", null, r[0]));
-      row.appendChild(el("dd", null, r[1]));
-      dl.appendChild(row);
-    });
-  box.appendChild(dl);
+async function sendFile(state){
+  const file = state.file;
+  if (!state.id) state.id = (await api("reserveUpload",{})).id;
+  let attempts = 0, renewed = false;
+  while (!state.complete){
+    if (!state.session){
+      const opened = await api("beginUpload",{uploadId:state.id,library:S.dest.library,folderPath:S.dest.folderPath,name:file.name,mime:file.type,size:file.size});
+      if (opened.complete){state.complete=true;break;}
+      state.session = opened.session; state.offset=0; state.probe=false;
+    }
+    try {
+      const reply = await putChunk(state,state.probe);
+      // An earlier final PUT can win after its response was lost. The save
+      // endpoint independently checks this reserved ID, byte count and parent.
+      if (reply.code === 200 || reply.code === 201 || reply.code === 409){ state.complete=true; break; }
+      if (reply.code === 404 || reply.code === 410){
+        if (renewed) throw Error("The upload session expired. Retry to reconnect.");
+        renewed=true; state.session=""; continue;
+      }
+      if(reply.code!==308) throw Error("Drive interrupted the upload ("+reply.code+").");
+      let offset = reply.range ? Number((/^bytes=0-(\d+)$/i.exec(reply.range)||[])[1])+1 : 0;
+      if (!reply.range) {
+        // Some browsers cannot read the Range header on a cross-origin response.
+        const status=await api("uploadStatus",{session:state.session,size:file.size});
+        if(status.complete){state.complete=true;break;}
+        offset=status.offset;
+      }
+      if (!Number.isSafeInteger(offset)||offset<0||offset>file.size) throw Error("Drive returned an invalid upload offset.");
+      if(!state.probe && offset<=state.offset) throw Error("Drive has not acknowledged the last part.");
+      if(offset>state.offset) attempts=0;
+      state.offset=offset; state.probe=false; showProgress(offset);
+    } catch(err){
+      state.probe=true;
+      if(++attempts>3) throw Error("Upload paused. Keep this tab open and retry when connected.");
+      $("saveStatus").textContent = "Reconnecting to Drive…";
+      await new Promise(resolve=>setTimeout(resolve,1000*Math.pow(2,attempts-1)));
+    }
+  }
+}
 
-  var stack = el("div", "stackbtn");
-  var again = el("button", "go", "Record another in this folder");
-  again.type = "button";
-  again.addEventListener("click", function(){ delete S.dest.uploaded; renderRecord(); });
-  var another = el("button", "go ghost", "Upload something else");
-  another.type = "button";
-  another.addEventListener("click", function(){ S.nav = { lib:null, path:"" }; renderPicker(); showTab("upload"); });
-  var find = el("button", "go ghost", "Find a file");
-  find.type = "button";
-  find.addEventListener("click", function(){ showTab("retrieve"); });
-  stack.appendChild(again); stack.appendChild(another); stack.appendChild(find);
-  box.appendChild(stack);
+async function submitRecord(ev){
+  ev.preventDefault(); if (S.uploading) return;
+  refreshSave(); if ($("go").disabled) return;
+  const tags = recordTagValues().join(", ");
+  if(tags.length>2000){$("formerr").textContent="Choose fewer optional keywords."; $("formerr").classList.add("on");return;}
+  const P=plan(S.dest), title=$("title").value.trim();
+  const client=P.client === "locked" ? S.dest.client : ($("client")?.value || "");
+  const people=P.people === "locked" ? [S.dest.person] : ticked("person");
+  const payload={title,description:$("desc").value.trim(),docType:S.record.docTypes.join(", "),topics:pickedValues(S.record.selected,"topic").join(", "),
+    tags,client,people:people.join(", "),industry:client ? industryOf(client) : ($("industry")?.value || ""),
+    language:pickedValues(S.record.selected,"language").join(", "),library:S.dest.library,folderPath:S.dest.folderPath,year:titleYear(title)};
+  const controls = Array.from($("recForm").querySelectorAll("button,select,input,textarea"));
+  S.uploading=true; controls.forEach(c=>c.disabled=true); $("addControls").inert=true;
+  $("formerr").classList.remove("on"); $("go").textContent="Saving…";
+  const state=transfer;
+  try {
+    if (!state.complete){showProgress(state.offset); await sendFile(state);}
+    $("uploadProgress").value=100; $("saveStatus").textContent="Saving file details…";
+    const saved=await api("saveUpload",{...payload,uploadId:state.id});
+    if(!safeLink(saved.driveLink)) throw Error("Drive did not return the file link.");
+    S.records=null; S.next=saved.next; recordDone(saved.driveLink,title,payload);
+  }catch(err){
+    controls.forEach(c=>c.disabled=false);
+    let reason=err.message;
+    if(state.complete && reason.includes("keyword list changed")){
+      try { applyKeywords((await api("init")).keywords); reason="The keyword list was updated. Check your selections."; }
+      catch { reason="The keyword list changed. Reconnect and retry."; }
+    }
+    $("formerr").textContent=state.complete ? "Your file is in Drive. Retry to save its details. "+reason : reason;
+    $("saveStatus").textContent=""; $("formerr").classList.add("on"); $("go").textContent="Retry";
+    if(!state.session&&!state.complete) state.id="";
+  }finally{
+    S.uploading=false; $("addControls").inert=!!transfer?.id;
+    if ($("recForm")) refreshSave();
+  }
+}
+
+function recordDone(link,title,p){
+  transfer=null; S.record=null; S.dest=null;
+  $("addControls").hidden=true;
+  const box=$("recordBody"); box.innerHTML="";
+  box.appendChild(el("h2",null,"File saved"));
+  box.appendChild(el("h3","saved-title",title));
+  box.appendChild(el("p","folder-path",[p.library,...pathParts(p.folderPath)].join(" › ")));
+  const open=el("a","go","Open file"); open.href=link; open.target="_blank"; open.rel="noopener"; box.appendChild(open);
+  const again=el("button","text-action","Add another file");
+  again.addEventListener("click",()=>{
+    $("addControls").hidden=false; $("addControls").inert=false; box.innerHTML="";
+    $("uploadFile").value=""; $("fileCaption").textContent="Choose file"; $("dropHint").textContent="or drop a file here";
+    $("fileError").textContent=""; $("folderCaption").textContent="Choose a folder"; $("changeFolder").hidden=true; $("folderPicker").open=false;
+    S.nav={lib:null,path:""};renderPicker(); $("uploadFile").focus();
+  });box.appendChild(again);box.scrollIntoView({block:"start"});
 }
 
 /* ============================================================
@@ -1857,7 +1796,7 @@ function doSearch(){
   if (!S.records) return;
   var parsed = mergedSearch(q);
   if (!S.records.length){
-    out.appendChild(el("p", "banner", "No files recorded yet. Upload a file and save its details to see it here."));
+    out.appendChild(el("p", "banner", "No files yet. Choose Add a file to save the first one."));
     return;
   }
   var browsing = !String(q).trim() && !parsed.facets.length;
@@ -1899,9 +1838,11 @@ function doSearch(){
   if (!res.hits.length){
     var none = el("div", "banner");
     none.textContent = "Nothing found. Remove a filter or try fewer words.";
-    var clear = el("button", "go ghost", "Clear filters");
+    var clear = el("button", "go ghost", S.retrieve.filters.length ? "Clear filters" : "Clear search");
     clear.addEventListener("click", function(){
-      $("q").value = ""; S.retrieve.filters = []; S.removed = [];
+      if (S.retrieve.filters.length) S.retrieve.filters = [];
+      else $("q").value = "";
+      S.removed = [];
       renderRetrieveFilters(); doSearch(); $("q").focus();
     });
     none.appendChild(clear); out.appendChild(none);
@@ -1926,15 +1867,12 @@ function resultCard(r){
   if (r.status === "Superseded" || r.status === "Archived") h.appendChild(el("span", "old", r.status));
   c.appendChild(h);
 
-  var bits = [r.fileFormat, r.docType, r.fileSize];
-  if (r.client) bits.push(r.client);
-  if (r.topics) bits.push(r.topics);
-  if (r.year) bits.push(String(r.year));
+  var bits = [r.fileFormat, r.docType];
   c.appendChild(el("div", "meta", bits.filter(Boolean).join("  \u00B7  ")));
 
   c.appendChild(el("p", "folder-path", [r.library, r.folderPath].filter(Boolean).join(" > ").split(" > ").join(" › ")));
   if (r.description) c.appendChild(el("p", "desc", r.description));
-  if (r.tags) c.appendChild(el("p", "keywords", "Tags: " + r.tags));
+
 
   var acts = el("div", "acts");
   if (safeLink(r.driveLink)){
@@ -1943,11 +1881,12 @@ function resultCard(r){
     acts.appendChild(a);
   }
   if (!safeLink(r.driveLink)) acts.appendChild(el("span", "note", "File link unavailable"));
+  var menu=el("details","result-menu"); menu.appendChild(el("summary",null,"More"));
   var folder = S.folders[r.library + " > " + r.folderPath];
   if (safeLink(folder)){
     var openFolder = el("a", null, "Open folder");
     openFolder.href = folder; openFolder.target = "_blank"; openFolder.rel = "noopener";
-    acts.appendChild(openFolder);
+    menu.appendChild(openFolder);
   }
   var relBox = el("div", "rel");
   relBox.hidden = true;
@@ -1974,7 +1913,7 @@ function resultCard(r){
     relBox.hidden = false;
     relButton.textContent = "Related \u25BE";
   });
-  acts.appendChild(relButton);
+  menu.appendChild(relButton); acts.appendChild(menu);
   c.appendChild(acts);
   c.appendChild(relBox);
   return c;
@@ -2070,7 +2009,8 @@ function applyKeywords(catalog){
   S.retrieve.filters = S.retrieve.filters.filter(valid);
   if (S.record) {
     S.record.selected = S.record.selected.filter(valid);
-    if ($("recordKeywordBrowser")) renderKeywordBrowser($("recordKeywordBrowser"), "record");
+    const draft=currentDraft();
+    if (draft) renderRecord(draft);
   }
   buildFacets();
 }
@@ -2089,8 +2029,8 @@ function boot(){
       if (!d.keywords) throw new Error("Connect the updated Apps Script deployment.");
       S.admin = d.admin; S.clients = d.clients; S.people = d.people; S.folders = d.folders; S.next = d.next;
       applyKeywords(d.keywords);
-      $("tab-admin").hidden = !d.admin;
-      $("chipId").textContent = d.next; $("chip").hidden = false;
+      $("adminMenu").hidden = !d.admin;
+
       $("accessKey").value = ""; form.hidden = true; $("workspace").hidden = false;
       renderPicker(); renderRetrieveFilters();
     } catch (err) { accessKey = ""; status.textContent = err.message; }

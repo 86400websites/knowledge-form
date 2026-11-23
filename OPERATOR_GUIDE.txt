@@ -1,11 +1,8 @@
-============================================================
- ALLIANCE KNOWLEDGE REPOSITORY - SIMPLE OPERATOR GUIDE
-============================================================
+ALLIANCE KNOWLEDGE REPOSITORY
 
-
-1. UPLOAD
-
-Choose one main folder:
+1. ADD A FILE
+Choose Add a file. Click Choose file or drop one file from your device.
+Open Where should this file go? Choose a folder, or create one inside a library.
 
 01 Clients
 02 Content
@@ -15,98 +12,10 @@ Choose one main folder:
 06 Alliance IP
 99 Archive
 
-Open the correct folder, or create a folder or subfolder.
-Click "Upload a file to this folder".
-Select Choose file from laptop, choose a file up to 10 MB and press Upload to this folder. Once Drive confirms, the Record form opens with the name and link filled in. For larger files, open the folder in Drive, upload there and choose Record an existing Drive file.
+Click Use this folder. Check the suggested title, describe the file, and select its document type and topic. More details contains optional tags and keywords. Click Save file once. Keep the tab open until File saved appears. If your connection drops, Retry resumes the transfer. If the file is already in Drive, Retry finishes saving its details. Open file opens the saved item.
 
+2. FIND A FILE
+Open Find a file to see recent files. Use normal search or tap Filters to narrow the list. Open file is on each result. More contains the folder and related files.
 
-2. RECORD
-
-Complete the form from top to bottom.
-
-CLIENT
-Automatic when the selected folder belongs to a client.
-
-TITLE
-Use the same title as the file name in Drive.
-
-DESCRIPTION
-Write one clear sentence explaining what the file is and when it is useful.
-
-DRIVE LINK
-Direct uploads fill this in automatically. For an existing file, right-click it in Drive > Share > Copy link.
-
-DOCUMENT TYPE
-Tap every type that applies. A file can be both Framework and Slide Deck.
-
-PEOPLE
-Shown only when relevant.
-
-INDUSTRY
-Shown only for files inside 05 Research.
-
-TAGS AND KEYWORDS
-Tap all the words that describe the file. Open one section at a time:
-
-- Topic
-- What is it for?
-- Who is it for?
-- How is it used?
-- Style and features
-- Region
-- Language
-
-The selected button changes colour and shows a checkmark. Tap it again to
-remove it.
-
-For a missing topic or keyword, ask your keyword administrator.
-
-File Format and File Size are detected automatically. Do not enter them.
-
-Click "Record file".
-
-
-3. RETRIEVE
-
-METHOD A - NORMAL SEARCH
-
-Type anything you remember, such as:
-
-MODON leadership workshop
-Arabic facilitator
-AI workbook
-PDF 2025
-
-METHOD B - TAP FILTERS
-
-Use the quick filters:
-
-- Client
-- Document Type
-- File Format
-- File Size
-- Year
-
-Or open the same Tags and Keywords sections used in Record:
-
-- Topic
-- What is it for?
-- Who is it for?
-- How is it used?
-- Style and features
-- Region
-- Language
-
-You can type and tap filters at the same time.
-Tap a selected filter again, or use Clear all filters, to remove it.
-
-
-THREE RULES
-
-1. Record every useful file after uploading it.
-2. Select keywords from the shared list.
-3. Ask the repository owner before moving, renaming or deleting a recorded file.
-
-4. MANAGE KEYWORDS
-
-Open the repository with the admin key and select Manage keywords. Choose a group, then add a new keyword or select an existing one. Save name updates all matching records. Remove keyword shows how many records use it and lets you select a replacement before confirming.
+3. MANAGE KEYWORDS
+Sign in using the admin key. Open Admin and choose Manage keywords. Select a group to add a word or choose an existing word to rename or remove. Before removing a word, check how many files use it and choose a replacement if needed.
