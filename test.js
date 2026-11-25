@@ -548,6 +548,22 @@ async function main() {
   const pickerInput=document.byId.uploadFile;
   const chosen={name:'2025 - ADNOC GAS - Own The Room Framework - v1',size:16777217,type:'text/plain',slice:(start,end)=>({size:end-start})};
   pickerInput.dispatchEvent({type:'change',target:{files:[chosen]}});
+  const xhr = f.context.XMLHttpRequest.prototype, sendChunk = xhr.send;
+  let rejectedChunks = 0;
+  xhr.send = function(){
+    rejectedChunks++;
+    this.status = 403;
+    this.responseText = JSON.stringify({error:{errors:[{reason:'storageQuotaExceeded'}]}});
+    this.onload();
+  };
+  form.dispatchEvent({type:'submit',preventDefault(){}});
+  await new Promise(resolve=>setTimeout(resolve,20));
+  check('Drive storage rejection stops after one chunk and shows an actionable warning', rejectedChunks===1 &&
+    document.byId.formerr.textContent.includes('Drive owner to free up space') && document.byId.uploadProgress.hidden);
+  check('storage failure keeps the file details ready for Retry and does not index the file',
+    document.byId.go.textContent==='Retry' && document.byId.title.value===chosen.name && !posts.some(p=>p.action==='saveUpload'));
+  xhr.send = sendChunk;
+  const sessionsBeforeRetry = posts.filter(p=>p.action==='beginUpload').length;
   form.dispatchEvent({ type:'submit', preventDefault() {} });
   await new Promise(resolve => setTimeout(resolve, 20));
   check('interrupted upload queries Drive and resumes at the confirmed byte',f.transferred.join('|')===
@@ -555,7 +571,7 @@ async function main() {
   check('failed indexing offers retry while preserving form details', document.byId.go.textContent==='Retry' && document.byId.title.value===chosen.name);
   form.dispatchEvent({type:'submit',preventDefault(){}});
   await new Promise(resolve=>setTimeout(resolve,0));
-  check('index retry reuses one upload and produces the success view', posts.filter(p=>p.action==='beginUpload').length===1 &&
+  check('index retry reuses one upload and produces the success view', posts.filter(p=>p.action==='beginUpload').length===sessionsBeforeRetry+1 &&
     posts.filter(p=>p.action==='saveUpload').length===2 && recordBody.textContent.includes('File saved'));
   const recordPost = posts.filter(x => x.action === 'saveUpload').slice(-1)[0];
   check('record submission stores every checked document type', recordPost && recordPost.docType === 'Framework, Slide Deck');
@@ -678,6 +694,16 @@ async function main() {
     !post('beginUpload',{...deviceFile,size:-1}).ok);
   check('progress probe returns the first uncommitted byte', post('uploadStatus',{session,size:deviceFile.size}).offset===262144);
   check('progress probe rejects unrelated destinations', !post('uploadStatus',{session:'https://example.org/',size:0}).ok);
+  let forbiddenBody;
+  b.context.UrlFetchApp.fetch=()=>({getResponseCode:()=>403,getContentText:()=>forbiddenBody});
+  forbiddenBody=JSON.stringify({error:{errors:[{reason:'storageQuotaExceeded'}]}});
+  check('Drive reports insufficient storage at session creation and progress checks',
+    post('beginUpload',deviceFile).code==='storageQuotaExceeded' && post('uploadStatus',{session,size:42}).code==='storageQuotaExceeded');
+  for(const body of ['userRateLimitExceeded','insufficientPermissions','teamDriveFileLimitExceeded','malformed']){
+    forbiddenBody=body==='malformed' ? '<html>Error</html>' : JSON.stringify({error:{errors:[{reason:body}]}});
+    const rejected=post('beginUpload',deviceFile);
+    check(body+' keeps the ordinary Drive error', !rejected.ok && !rejected.code && rejected.error.includes('(403)'));
+  }
   const deviceParent=repo.child('02 Content').child('Leadership Programmes').getId();
   b.driveFiles[deviceFile.uploadId]={id:deviceFile.uploadId, size:'42',parents:[deviceParent],
     appProperties:{repositoryUpload:deviceFile.uploadId,repositoryBytes:'43'}};

@@ -364,6 +364,18 @@ const MAX_UPLOAD_BYTES = 10 * 1024 * 1024;
 
 const DEVICE_UPLOAD_LIMIT = 1000000000;
 
+function driveUploadFailure_(response, fallback) {
+  const code = response.getResponseCode();
+  if (code === 403) {
+    let error;
+    try { error = JSON.parse(response.getContentText()).error; } catch (_) {}
+    if (Array.isArray(error?.errors) && error.errors.some(e => e?.reason === "storageQuotaExceeded")) {
+      return json_({ok:false, code:"storageQuotaExceeded", error:"Google Drive has insufficient storage for this file."});
+    }
+  }
+  return json_({ok:false, error:fallback});
+}
+
 function uploadFolder_(d) {
   const parts = folderPathParts_(d.folderPath);
   if (!parts.length || !LIBRARIES.includes(d.library)) throw new Error("Choose a folder for this file.");
@@ -389,7 +401,7 @@ function beginUpload_(d) {
       appProperties:{repositoryUpload:d.uploadId, repositoryBytes:String(d.size)}})
   });
   if (response.getResponseCode() === 409) { verifyUpload_(d); return json_({ok:true, complete:true}); }
-  if (response.getResponseCode() !== 200) throw new Error("Drive could not start the upload (" + response.getResponseCode() + "). Try again.");
+  if (response.getResponseCode() !== 200) return driveUploadFailure_(response, "Drive could not start the upload (" + response.getResponseCode() + "). Try again.");
   const headers = response.getAllHeaders();
   const url = headers[Object.keys(headers).find(k => k.toLowerCase() === "location")];
   if (!/^https:\/\/(?:www|content)\.googleapis\.com\/upload\/drive\//.test(String(url))) throw new Error("Drive did not return an upload session.");
@@ -414,7 +426,7 @@ function uploadStatus_(d) {
     headers:{"Content-Range":"bytes */"+d.size},followRedirects:false,muteHttpExceptions:true});
   const code=response.getResponseCode();
   if(code===200 || code===201) return json_({ok:true,complete:true});
-  if(code!==308) throw new Error("Drive could not confirm upload progress ("+code+").");
+  if(code!==308) return driveUploadFailure_(response, "Drive could not confirm upload progress ("+code+").");
   const headers=response.getAllHeaders(), range=headers[Object.keys(headers).find(k=>k.toLowerCase()==="range")];
   const match=/^bytes=0-(\d+)$/i.exec(range || "");
   return json_({ok:true,offset:match ? Number(match[1])+1 : 0});

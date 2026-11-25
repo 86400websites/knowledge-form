@@ -476,12 +476,18 @@ function esc(s){
 function live(){ return /^https:\/\//.test(CONFIG.ENDPOINT); }
 
 var accessKey = "";
+class DriveStorageError extends Error {
+  constructor(){
+    super("There isn’t enough space in the repository’s Google Drive for this file. Ask the Drive owner to free up space, then select Retry.");
+  }
+}
 async function api(action, payload){
   if (!live()) throw new Error("The repository connection has not been configured.");
   const response = await fetch(CONFIG.ENDPOINT, { method:"POST", headers:{"Content-Type":"text/plain;charset=utf-8"},
     body:JSON.stringify(Object.assign({}, payload, {action:action, accessKey:accessKey})) });
   if (!response.ok) throw new Error("The repository service could not be reached.");
   const data = await response.json();
+  if (!data.ok && data.code === "storageQuotaExceeded") throw new DriveStorageError();
   if (!data.ok) throw new Error(data.error || "The request could not be completed.");
   return data;
 }
@@ -1327,7 +1333,17 @@ function putChunk(state, probe){
     if (probe || file.size) xhr.setRequestHeader("Content-Range",probe ? "bytes */"+file.size : "bytes "+start+"-"+(end-1)+"/"+file.size);
     if (!probe) xhr.setRequestHeader("Content-Type",file.type || "application/octet-stream");
     xhr.upload.onprogress = e => { if (!probe) showProgress(start+e.loaded); };
-    xhr.onload = () => resolve({code:xhr.status, range:xhr.getResponseHeader("Range")});
+    xhr.onload = () => {
+      if (xhr.status === 403) {
+        let error;
+        try { error = JSON.parse(xhr.responseText).error; } catch (_) {}
+        if (Array.isArray(error?.errors) && error.errors.some(e => e?.reason === "storageQuotaExceeded")) {
+          reject(new DriveStorageError());
+          return;
+        }
+      }
+      resolve({code:xhr.status, range:xhr.getResponseHeader("Range")});
+    };
     xhr.onerror = xhr.ontimeout = xhr.onabort = () => reject(new Error("Connection interrupted."));
     xhr.send(probe ? null : file.slice(start,end));
   });
@@ -1365,6 +1381,10 @@ async function sendFile(state){
       if(offset>state.offset) attempts=0;
       state.offset=offset; state.probe=false; showProgress(offset);
     } catch(err){
+      if (err instanceof DriveStorageError) {
+        state.session=""; state.offset=0; state.probe=false;
+        throw err;
+      }
       state.probe=true;
       if(++attempts>3) throw Error("Upload paused. Keep this tab open and retry when connected.");
       $("saveStatus").textContent = "Reconnecting to Drive…";
@@ -1396,6 +1416,7 @@ async function submitRecord(ev){
     S.records=null; S.next=saved.next; recordDone(saved.driveLink,title,payload);
   }catch(err){
     controls.forEach(c=>c.disabled=false);
+    if (err instanceof DriveStorageError) $("uploadProgress").hidden=true;
     let reason=err.message;
     if(state.complete && reason.includes("keyword list changed")){
       try { applyKeywords((await api("init")).keywords); reason="The keyword list was updated. Check your selections."; }
