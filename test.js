@@ -109,7 +109,7 @@ function findByText(root, tag, prefix) {
   return walk(root).find(e => e.tagName === tag.toUpperCase() && e.textContent.trim().startsWith(prefix));
 }
 
-function loadFrontend() {
+function loadFrontend(keywordOverrides = {}) {
   const htmlPath = path.join(__dirname, 'index.html');
   const html = fs.readFileSync(htmlPath, 'utf8');
   const scripts = [...html.matchAll(/<script>([\s\S]*?)<\/script>/g)].map(m => m[1]);
@@ -198,7 +198,7 @@ function loadFrontend() {
   vm.createContext(context);
   vm.runInContext(scripts[0] + ';CONFIG.ENDPOINT="https://example.test/exec";', context, { filename: 'config.js' });
   const seed = vm.runInContext('KEYWORD_SEED', loadBackend().context);
-  context.seed = seed;
+  context.seed = { ...seed, ...keywordOverrides };
   const appScript = scripts[scripts.length - 1].replace(/\nboot\(\);\n/, '\napplyKeywords(seed);\n');
   vm.runInContext(appScript, context, { filename: 'app.js' });
   return { html, context, document, app: context.__AKR, posts, transferred };
@@ -524,6 +524,9 @@ async function main() {
     'UAE','Saudi Arabia','GCC','Middle East','MENA','Global','English','Arabic','English & Arabic','French','Multiple Languages','Other Language'
   ];
   const actualTagValues = app.TAG_GROUPS.filter(g => g.key !== 'topic').flatMap(g => g.values);
+  const addedValues = ['Zulu', 'stage 10', 'alpha', 'Stage 2', 'Bravo'];
+  const updatedCatalog = loadFrontend({custom:addedValues}).app.TAG_GROUPS;
+  check('new keywords sort within their group regardless of insertion order, case, or number', updatedCatalog.find(g => g.key === 'custom').values.join('|') === 'alpha|Bravo|Stage 2|stage 10|Zulu');
   check('the full approved Tags and Keywords list is present without omissions', approvedTagValues.every(v => actualTagValues.includes(v)) && actualTagValues.length === approvedTagValues.length);
   check('Stage group has been removed', !recordBody.textContent.includes('What stage is it at?') && !html.includes('What stage is it at?'));
   check('selected summary is kept in the live form', recordBody.textContent.includes('Selected') && recordBody.textContent.includes('English'));

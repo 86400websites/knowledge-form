@@ -429,6 +429,8 @@ var TAG_GROUPS = [
   {key:"language", label:"Language"}, {key:"custom", label:"Other keywords"}
 ];
 TAG_GROUPS.forEach(function(g){ g.values = []; });
+const keywordOrder = new Intl.Collator("en", {sensitivity:"base", numeric:true});
+const displayTagGroups = TAG_GROUPS.slice().sort((a,b) => keywordOrder.compare(a.label,b.label));
 var TAG_GROUP_MAP = {};
 TAG_GROUPS.forEach(function(g){ TAG_GROUP_MAP[g.key] = g; });
 
@@ -1211,7 +1213,7 @@ function renderKeywordBrowser(box, mode){
     var selected = el("div", "selected-box");
     selected.appendChild(el("div", "selected-title", "Selected"));
     var selectedList = el("div", "selected-list");
-    selections.filter(x=>x.kind !== "topic").forEach(function(item){
+    selections.filter(x=>x.kind !== "topic").sort((a,b) => keywordOrder.compare(a.value,b.value)).forEach(function(item){
       var pill = el("button", "selected-pill");
       pill.type = "button";
       pill.appendChild(document.createTextNode(item.value));
@@ -1227,7 +1229,7 @@ function renderKeywordBrowser(box, mode){
   }
 
   var tabs = el("div", "meta-tabs");
-  TAG_GROUPS.forEach(function(group){
+  displayTagGroups.forEach(function(group){
     if (mode === "record" && group.key === "topic") return;
     var open = activeTagGroup(mode) === group.key;
     var count = pickedValues(selections, group.key).length;
@@ -1806,7 +1808,7 @@ function doSearch(){
   var res = browsing ? {hits:S.records.slice().reverse().map(r => ({r:r}))} : runSearch(q, parsed);
 
   var bar = el("div", "readback");
-  parsed.facets.forEach(function(f){
+  parsed.facets.slice().sort((a,b) => keywordOrder.compare(a.value,b.value)).forEach(function(f){
     var b = el("button", "fchip"); b.type = "button";
     b.appendChild(document.createTextNode(f.value));
     b.appendChild(el("em", null, "\u00D7"));
@@ -1944,7 +1946,7 @@ function renderAdmin(initialGroup, notice){
   panel.innerHTML = "";
   panel.appendChild(el("h2", null, "Manage keywords"));
   const group = el("select");
-  TAG_GROUPS.forEach(g => group.appendChild(new Option(g.label, g.key)));
+  displayTagGroups.forEach(g => group.appendChild(new Option(g.label, g.key)));
   group.value = initialGroup || "topic";
   panel.appendChild(field("adminGroup", "Keyword group", group));
   const current = el("select");
@@ -2014,7 +2016,7 @@ function renderAdmin(initialGroup, notice){
 }
 
 function applyKeywords(catalog){
-  TAG_GROUPS.forEach(g => { g.values = (catalog[g.key] || []).slice(); });
+  TAG_GROUPS.forEach(g => { g.values = (catalog[g.key] || []).slice().sort(keywordOrder.compare); });
   S.topics = TAG_GROUP_MAP.topic.values;
   const valid = x => !TAG_GROUP_MAP[x.kind] || TAG_GROUP_MAP[x.kind].values.includes(x.value);
   S.retrieve.filters = S.retrieve.filters.filter(valid);
