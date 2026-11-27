@@ -18,4 +18,4 @@ Click Use this folder. Check the suggested title, describe the file, and select 
 Open Find a file to see recent files. Use normal search or tap Filters to narrow the list. Open file is on each result. More contains the folder and related files.
 
 3. MANAGE KEYWORDS
-Sign in using the admin key. Open Admin and choose Manage keywords. Select a group to add a word or choose an existing word to rename or remove. Before removing a word, check how many files use it and choose a replacement if needed.
+Use the same uploader key. Open Admin and choose Manage keywords. Select a group to add a word or choose an existing word to rename or remove. Before removing a word, check how many files use it and choose a replacement if needed.

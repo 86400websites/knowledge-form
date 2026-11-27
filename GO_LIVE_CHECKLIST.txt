@@ -4,6 +4,6 @@ ALLIANCE KNOWLEDGE REPOSITORY – RELEASE CHECK
 [ ] Use Add a file on a phone-sized screen and desktop. Pick a local file, folder, document type and topic. Save once. Verify the selected folder, file contents, index row and success link.
 [ ] Use normal typed search and try tapping the same Topic or Tag in Filters. Open the file. Open More to check Open folder.
 [ ] Test a 1,000,000,000-byte file and reject a file one byte larger on the client and backend. Interrupt a multipart transfer. Retry a failed index write and verify one Drive file and one searchable row. Use isolated rehearsal storage.
-[ ] Verify team and admin access, keyword rename/removal and affected records.
+[ ] Verify uploader access, rejection of the retired keys, keyword rename/removal and affected records.
 [ ] Coordinate deploying the new version at the existing Apps Script /exec URL and publishing index.html to the existing GitHub Pages main branch. Smoke-test the published site. If rollback is needed, restore the previous frontend and Apps Script deployment version together.
 [ ] For client handover follow DRIVE_HANDOVER.md and verify the chosen existing-record policy.

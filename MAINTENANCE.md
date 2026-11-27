@@ -1,6 +1,6 @@
 # Alliance Knowledge Repository
 
-The static page calls the Apps Script endpoint using JSON in text/plain POST requests. Script properties select the index and repository parent. Team and admin keys authorize requests on the server. File links still require the user's normal Drive permissions.
+The static page calls the Apps Script endpoint using JSON in text/plain POST requests. Script properties select the index and repository parent. One uploader key authorizes uploads and keyword management on the server. File links still require the user's normal Drive permissions.
 
 The Knowledge Index has 18 columns. The first 16 columns are unchanged. File Format and File Size occupy columns 17 and 18. Lists stores client and person metadata. Folders maps nested paths to exact Drive URLs. Keywords stores group and label pairs and is the source for both forms. Initial setup imports older topics and free-form tags once. Later setup runs preserve the managed list, including removals.
 

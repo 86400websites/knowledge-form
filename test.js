@@ -369,7 +369,7 @@ function loadBackend() {
   folders.getRange(2, 1, 1, 2).setValues([['02 Content > Leadership','https://drive.google.com/drive/folders/OLD']]);
 
   Object.values(ss.sheets).forEach((t,i) => t.getSheetId = () => i);
-  const props = {SHEET_ID:'test-sheet', PARENT_ID:'test-folder', TEAM_KEY:'team', ADMIN_KEY:'admin'};
+  const props = {SHEET_ID:'test-sheet', PARENT_ID:'test-folder', UPLOADER_KEY:'uploader', TEAM_KEY:'team', ADMIN_KEY:'admin'};
   const driveFiles = {
     xyz: new FileItem('Workshop Guide.pdf', 'application/pdf', 3 * 1024 * 1024),
     googleDoc: new FileItem('Leadership Notes', 'application/vnd.google-apps.document', 0),
@@ -671,9 +671,9 @@ async function main() {
   check('folder delimiter characters are rejected', b.context.addFolder_({ library:'05 Research', parentPath:'', name:'A > B' }).ok === false);
 
   console.log('\n===== APPS SCRIPT: RECORD AND RETRIEVE DATA =====');
-  const post = (action, payload = {}, accessKey = "admin") => b.context.doPost({postData:{contents:JSON.stringify({action, accessKey, ...payload})}});
-  check('index requires repository access', !post('records', {}, '').ok && post('records', {}, 'team').ok);
-  check('team members cannot edit keywords', !post('editKeyword', {operation:'add',group:'topic',value:'Blocked'}, 'team').ok);
+  const post = (action, payload = {}, accessKey = "uploader") => b.context.doPost({postData:{contents:JSON.stringify({action, accessKey, ...payload})}});
+  check('index requires repository access', !post('records', {}, '').ok && !post('records', {}, 'team').ok && !post('init', {}, 'admin').ok && post('init').admin);
+  check('retired keys cannot edit keywords', !post('editKeyword', {operation:'add',group:'topic',value:'Blocked'}, 'team').ok);
   check('admins can add a keyword', post('editKeyword',{operation:'add',group:'topic',value:'Customer Experience'}).ok);
   post('editKeyword',{operation:'add',group:'custom',value:'Own The Room'});
   check('duplicate keywords rejected ignoring case', !post('editKeyword',{operation:'add',group:'topic',value:'customer experience'}).ok);
@@ -713,7 +713,7 @@ async function main() {
     !post('saveUpload',{...deviceFile,folderPath:'Leadership Programmes > Participant Materials'}).ok);
   const id = post('reserveUpload').id;
   const payload = {id, name:'notes.txt', mime:'text/plain', size:3,content:'YWJj',library:'02 Content',folderPath:'Leadership Programmes'};
-  const uploaded = post('upload', payload, 'team');
+  const uploaded = post('upload', payload);
   check('local bytes reach chosen folder', uploaded.ok && b.driveFiles[id].parents[0] === repo.child('02 Content').child('Leadership Programmes').getId());
   check('retry returns same Drive file', post('upload',payload).url === uploaded.url && !!uploaded.url);
   check('link-only and wrong destinations cannot upload', !post('upload',{...payload,content:undefined}).ok && !post('upload',{...payload,folderPath:'Wrong'}).ok);
@@ -754,8 +754,8 @@ async function main() {
   check('stale removal count rejected', !post('editKeyword',{...rename,operation:'remove',original:'Group Session',value:'Keynote',count:0}).ok);
   check('remove reassigns existing files', post('editKeyword',{...rename,operation:'remove',original:'Group Session',value:'Keynote'}).ok && b.context.readRecords_(b.ss)[0].tags.includes('Keynote'));
   check('standard topics can be retired',post('editKeyword',{operation:'remove',group:'topic',original:'Innovation',value:'',count:0}).ok);
-  const routed = post('addFolder',{library:'05 Research',parentPath:'',name:'Sector Reports'},'team');
-  check('team can create folders', routed.ok && routed.name === 'Sector Reports');
+  const routed = post('addFolder',{library:'05 Research',parentPath:'',name:'Sector Reports'});
+  check('uploader can create folders', routed.ok && routed.name === 'Sector Reports');
   check('all write requests still use the script lock', b.lock.waited && b.lock.released);
 
   /* A manual Drive folder is picked up by setupEverything, which repairs the

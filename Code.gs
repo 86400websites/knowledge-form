@@ -140,10 +140,8 @@ function prepareFreshRepository() {
   const lock = LockService.getScriptLock();
   lock.waitLock(20000);
   try {
-    const adminDigest = accessDigest_("ADMIN_KEY");
-    const teamDigest = accessDigest_("TEAM_KEY");
-    if (!adminDigest || !teamDigest || adminDigest === teamDigest)
-      throw new Error("Set distinct TEAM_KEY and ADMIN_KEY values in Script properties first.");
+    if (!accessDigest_("UPLOADER_KEY"))
+      throw new Error("Set UPLOADER_KEY_SHA256 in Script properties first.");
     PARENT_ID = SETTINGS.getProperty("PARENT_ID");
     SHEET_ID = SETTINGS.getProperty("SHEET_ID");
     if (!PARENT_ID) {
@@ -320,23 +318,19 @@ function doPost(e) {
     const d = JSON.parse(e.postData.contents);
     const key = d.accessKey;
     const digest = typeof key === "string" && key.length > 0 && key.length <= 512 ? keyDigest_(key) : "";
-    const admin = !!digest && digest === accessDigest_("ADMIN_KEY");
-    if (!admin && (!digest || digest !== accessDigest_("TEAM_KEY"))) {
+    if (!digest || digest !== accessDigest_("UPLOADER_KEY")) {
       throw new Error("Enter a valid repository access key.");
     }
     const ss = SpreadsheetApp.openById(SHEET_ID);
     if (d.action === "init") {
       const lists = readLists_(ss);
-      return json_({ ok:true, admin:admin, keywords:keywords_(ss), next:formatId_(nextNumber_(indexTab_(ss))),
+      return json_({ ok:true, admin:true, keywords:keywords_(ss), next:formatId_(nextNumber_(indexTab_(ss))),
         clients:lists.clients, people:lists.people, folders:readFolders_(ss) });
     }
     if (d.action === "records") return json_({ok:true, records:readRecords_(ss)});
     if (d.action === "reserveUpload") return json_({ok:true, id:Drive.Files.generateIds({count:1, space:"drive"}).ids[0]});
     if (d.action === "beginUpload") return beginUpload_(d);
     if (d.action === "uploadStatus") return uploadStatus_(d);
-    if (d.action === "editKeyword" || d.action === "keywordUsage") {
-      if (!admin) throw new Error("An admin key is required to manage keywords.");
-    }
     lock.waitLock(20000);
     if (d.website) return json_({ok:true, id:"AKR-0000"});
     switch (d.action) {
