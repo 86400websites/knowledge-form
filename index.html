@@ -411,7 +411,7 @@ var LIBS = [
 var DOCTYPES = [
   ["Commercial",        ["Proposal","Contract / SOW","Pricing Document"]],
   ["Delivery material", ["Slide Deck","Workbook","Facilitator Guide","Activity","Assessment","Case Study"]],
-  ["Written",           ["Report","Article","Meeting Notes"]],
+  ["Written",           ["Report","Article","Meeting Notes","Invitation"]],
   ["Media",             ["Video","Image / Brand Asset"]],
   ["Reusable",          ["Template","Framework","Prompt"]],
   ["People",            ["CV / Biography","Feedback"]],
@@ -426,7 +426,10 @@ var TAG_GROUPS = [
   {key:"topic", label:"Topic"}, {key:"purpose", label:"What is it for?"},
   {key:"audience", label:"Who is it for?"}, {key:"usage", label:"How is it used?"},
   {key:"features", label:"Style and features"}, {key:"region", label:"Region"},
-  {key:"language", label:"Language"}, {key:"custom", label:"Other keywords"}
+  {key:"language", label:"Language"}, {key:"custom", label:"Other keywords"},
+  {key:"relationshipManager", label:"Relationship Manager", separate:true},
+  {key:"facilitator", label:"Facilitator", separate:true},
+  {key:"eventLocation", label:"Event Location", separate:true}
 ];
 TAG_GROUPS.forEach(function(g){ g.values = []; });
 const keywordOrder = new Intl.Collator("en", {sensitivity:"base", numeric:true});
@@ -1265,11 +1268,12 @@ function renderKeywordBrowser(box, mode){
       b.addEventListener("click", function(){
         togglePicked(selections, group.key, v);
         renderKeywordBrowser(box, mode);
-        if (mode === "record") clr("tags"); else { renderRetrieveFilters(); doSearch(); }
+        if (mode === "retrieve") { renderRetrieveFilters(); doSearch(); }
       });
       grid.appendChild(b);
     });
     panel.appendChild(grid);
+    if (group.separate && !group.values.length) panel.appendChild(el("p", "note", "Add entries in Admin → Manage keywords."));
 
     box.appendChild(panel);
   }
@@ -1278,7 +1282,7 @@ function renderKeywordBrowser(box, mode){
 function recordTagValues(){
   var out = [];
   S.record.selected.forEach(function(x){
-    if (x.kind !== "topic" && x.kind !== "language") out.push(x.value);
+    if (x.kind !== "topic" && x.kind !== "language" && !TAG_GROUP_MAP[x.kind]?.separate) out.push(x.value);
   });
   return uniqueValues(out);
 }
@@ -1404,6 +1408,7 @@ async function submitRecord(ev){
   const payload={title,description:$("desc").value.trim(),docType:S.record.docTypes.join(", "),topics:pickedValues(S.record.selected,"topic").join(", "),
     tags,client,people:people.join(", "),industry:client ? industryOf(client) : ($("industry")?.value || ""),
     language:pickedValues(S.record.selected,"language").join(", "),library:S.dest.library,folderPath:S.dest.folderPath,year:titleYear(title)};
+  TAG_GROUPS.filter(g => g.separate).forEach(g => { payload[g.key] = pickedValues(S.record.selected,g.key).join(", "); });
   const controls = Array.from($("recForm").querySelectorAll("button,select,input,textarea"));
   S.uploading=true; controls.forEach(c=>c.disabled=true); $("addControls").inert=true;
   $("formerr").classList.remove("on"); $("go").textContent="Saving…";
@@ -1544,7 +1549,7 @@ var STOP = {};
 "a an and are as at be by can deliver delivers do file files find for from give has have i in is it me my of on or our show that the this to was we what when where which who with you".split(" ").forEach(function(w){ STOP[w] = 1; });
 
 function clean(s){
-  return " " + String(s || "").toLowerCase().replace(/[^a-z0-9&\s]/g, " ").replace(/\s+/g, " ").trim() + " ";
+  return " " + String(s || "").toLowerCase().replace(/[^\p{L}\p{M}\p{N}&\s]/gu, " ").replace(/\s+/g, " ").trim() + " ";
 }
 
 function parseQuery(q){
@@ -1557,7 +1562,10 @@ function parseQuery(q){
       for (var i = 0; i < found.length; i++){
         if (found[i].kind === f.kind && found[i].value === f.value) return;
       }
-      found.push({ kind:f.kind, value:f.value, source:"typed" });
+      const facet = { kind:f.kind, value:f.value, source:"typed" };
+      const matches = FACETS.filter(other => other.p === f.p);
+      if (matches.length > 1 && matches.some(other => TAG_GROUP_MAP[other.kind]?.separate)) facet.alternatives = matches;
+      found.push(facet);
       s = s.replace(needle, " ");
     }
   });
@@ -1569,6 +1577,7 @@ function parseQuery(q){
 }
 
 var W = { title:10, tags:9, topics:8, client:9, people:8, docType:6, fileFormat:6,
+          relationshipManager:9, facilitator:9, eventLocation:9,
           fileSize:2, industry:5, description:3, folderPath:2, library:1, language:4 };
 
 function txt(r, f){
@@ -1580,6 +1589,8 @@ function listHas(value, wanted){
   return String(value || "").split(",").some(function(v){ return key(v) === k; });
 }
 function hasFacet(r, f){
+  if (f.source === "typed" && f.alternatives) return f.alternatives.some(other => hasFacet(r, other));
+  if (TAG_GROUP_MAP[f.kind]?.separate) return listHas(r[f.kind], f.value);
   if (f.kind === "topic")    return listHas(r.topics, f.value);
   if (f.kind === "person")   return listHas(r.people, f.value);
   if (f.kind === "client")   return key(r.client) === key(f.value);
@@ -1660,7 +1671,7 @@ function runSearch(q, facetsIn){
     }
   }
 
-  if (parsed.facets.length > 1){
+  if (parsed.facets.length > 1 && !parsed.facets.some(f => f.source === "tap" && TAG_GROUP_MAP[f.kind]?.separate)){
     var loose = recs.map(function(r){
       var s = 0;
       parsed.facets.forEach(function(f){ if (hasFacet(r, f)) s += 20; });

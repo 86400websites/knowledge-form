@@ -30,8 +30,9 @@ const ROOT_NAME   = "Alliance Knowledge Repository";
    same positions, so every existing record stays compatible. */
 const HEADERS = ["ID","Date Added","Title","Description","Drive Link","Doc Type","Topics",
                  "Client","People","Industry","Language","Library","Folder Path","Year","Status",
-                 "Tags & Keywords","File Format","File Size"];
-const WIDTHS  = [90,140,320,420,240,150,200,150,160,140,90,130,260,60,100,240,120,120];
+                 "Tags & Keywords","File Format","File Size","Relationship Manager","Facilitator","Event Location"];
+const WIDTHS  = [90,140,320,420,240,150,200,150,160,140,90,130,260,60,100,240,120,120,180,180,220];
+const EVENT_FIELDS = ["relationshipManager", "facilitator", "eventLocation"];
 
 const LIBRARIES = [
   "01 Clients",
@@ -118,7 +119,7 @@ const KEYWORD_SEED = {
     "Multiple Languages",
     "Other Language"
   ],
-  "custom": []
+  "custom": [], "relationshipManager": [], "facilitator": [], "eventLocation": []
 };
 
 const MAX_FOLDER_DEPTH = 30;
@@ -457,6 +458,8 @@ function upload_(d) {
 }
 
 function keywordColumn_(group) {
+  const eventIndex = EVENT_FIELDS.indexOf(group);
+  if (eventIndex >= 0) return 19 + eventIndex;
   return group === "topic" ? 7 : group === "language" ? 11 : 16;
 }
 
@@ -477,6 +480,7 @@ function setupKeywords_(ss) {
     splitValues_(r.tags).forEach(v => include("custom", v));
     splitValues_(r.topics).forEach(v => include("topic", v));
     splitValues_(r.language).forEach(v => include("language", v));
+    EVENT_FIELDS.forEach(group => splitValues_(r[group]).forEach(v => include(group, v)));
   });
   ensureSheetSize_(tab, rows.length, 2);
   tab.getRange(1, 1, rows.length, 2).setValues(rows);
@@ -495,7 +499,9 @@ function keywords_(ss) {
 
 function validateSelections_(catalog, d) {
   const allowedTags = Object.keys(catalog).filter(g => keywordColumn_(g) === 16).flatMap(g => catalog[g]);
-  [[d.topics,catalog.topic],[d.language,catalog.language],[d.tags,allowedTags]].forEach(([raw, allowed]) => {
+  const fields = [[d.topics,catalog.topic],[d.language,catalog.language],[d.tags,allowedTags]];
+  EVENT_FIELDS.forEach(group => fields.push([d[group], catalog[group]]));
+  fields.forEach(([raw, allowed]) => {
     if (splitValues_(raw).some(v => !allowed.includes(v)))
       throw new Error("The keyword list changed. Refresh the form and select the current keywords.");
   });
@@ -589,7 +595,8 @@ function record_(d) {
     s_(d.status) || "Active",
     s_(d.tags),
     fileMeta.format,
-    fileMeta.size
+    fileMeta.size,
+    ...EVENT_FIELDS.map(group => splitValues_(d[group]).join(", "))
   ];
   sh.appendRow(row.map(value => typeof value === "string" && value.startsWith("=") ? "'" + value : value));
 
@@ -746,6 +753,13 @@ function addFolder_(d) {
 function indexTab_(ss) {
   const sh = ss.getSheetByName(TAB);
   if (!sh) throw new Error('No tab named "' + TAB + '". Run setupEverything first.');
+  ensureSheetSize_(sh, 1, HEADERS.length);
+  const labels = HEADERS.slice(18), range = sh.getRange(1, 19, 1, labels.length);
+  const current = range.getValues()[0];
+  if (current.some((v,i) => v !== labels[i])) {
+    if (current.some((v,i) => v && v !== labels[i])) throw new Error("Review the Knowledge Index headers in columns S through U before upgrading.");
+    range.setValues([labels]);
+  }
   return sh;
 }
 
@@ -1153,7 +1167,8 @@ function readRecords_(ss) {
       client: String(r[7]), people: String(r[8]), industry: String(r[9]),
       language: String(r[10]), library: String(r[11]), folderPath: String(r[12]),
       year: Number(r[13]) || 0, status: String(r[14]) || "Active", tags: String(r[15] || ""),
-      fileFormat: String(r[16] || ""), fileSize: String(r[17] || "")
+      fileFormat: String(r[16] || ""), fileSize: String(r[17] || ""),
+      relationshipManager: String(r[18] || ""), facilitator: String(r[19] || ""), eventLocation: String(r[20] || "")
     };
   }).filter(function (r) { return r.id; });
 }

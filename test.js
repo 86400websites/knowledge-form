@@ -435,7 +435,7 @@ function loadBackend() {
 
 async function main() {
   console.log('\n===== FRONTEND: FLEXIBLE FOLDER FLOW =====');
-  const f = loadFrontend();
+  const f = loadFrontend({relationshipManager:['Sam Ali'], facilitator:['Zoe Reed','Sam Ali'], eventLocation:['City Hall']});
   const { app, document, html, posts } = f;
   const picker = document.getElementById('picker');
 
@@ -523,7 +523,7 @@ async function main() {
     'Editable','Print Ready','Presentation Ready','Client Ready','Interactive','Visual','One Page','Executive Summary','Customisable','Reusable','Practical','Strategic',
     'UAE','Saudi Arabia','GCC','Middle East','MENA','Global','English','Arabic','English & Arabic','French','Multiple Languages','Other Language'
   ];
-  const actualTagValues = app.TAG_GROUPS.filter(g => g.key !== 'topic').flatMap(g => g.values);
+  const actualTagValues = app.TAG_GROUPS.filter(g => g.key !== 'topic' && !g.separate).flatMap(g => g.values);
   const addedValues = ['Zulu', 'stage 10', 'alpha', 'Stage 2', 'Bravo'];
   const updatedCatalog = loadFrontend({custom:addedValues}).app.TAG_GROUPS;
   check('new keywords sort within their group regardless of insertion order, case, or number', updatedCatalog.find(g => g.key === 'custom').values.join('|') === 'alpha|Bravo|Stage 2|stage 10|Zulu');
@@ -537,6 +537,12 @@ async function main() {
   findByText(document.byId.docChoices, 'button', 'Framework').click();
   findByText(document.byId.docChoices, 'button', 'Slide Deck').click();
   check('document types change state by tapping the option', app.S.record.docTypes.join(', ') === 'Framework, Slide Deck');
+  findByText(document.byId.docChoices, 'button', 'Invitation').click();
+  for (const [label, values] of [['Relationship Manager',['Sam Ali']],['Facilitator',['Sam Ali','Zoe Reed']],['Event Location',['City Hall']]]) {
+    const browser=document.byId.recordKeywordBrowser;
+    findByText(browser,'button',label).click();
+    for (const value of values) walk(browser).find(b=>b.className==='choice' && b.textContent===value).click();
+  }
   document.byId.topic.value='Leadership'; document.byId.topic.dispatchEvent({type:'change'});
   check('a Topic is selected by tapping it inside Tags and Keywords', app.S.record.selected.some(x => x.kind === 'topic' && x.value === 'Leadership'));
   check('keyword changes have a dedicated manager', html.includes('Manage keywords') && !document.byId.newTopic);
@@ -574,7 +580,9 @@ async function main() {
   check('index retry reuses one upload and produces the success view', posts.filter(p=>p.action==='beginUpload').length===sessionsBeforeRetry+1 &&
     posts.filter(p=>p.action==='saveUpload').length===2 && recordBody.textContent.includes('File saved'));
   const recordPost = posts.filter(x => x.action === 'saveUpload').slice(-1)[0];
-  check('record submission stores every checked document type', recordPost && recordPost.docType === 'Framework, Slide Deck');
+  check('record submission stores every checked document type including Invitation', recordPost && recordPost.docType === 'Framework, Slide Deck, Invitation');
+  check('selected names and venue are submitted in their own categories', recordPost.relationshipManager==='Sam Ali' &&
+    recordPost.facilitator==='Sam Ali, Zoe Reed' && recordPost.eventLocation==='City Hall' && !recordPost.tags.includes('Sam Ali'));
   check('topics are stored in the existing Topics field', recordPost && recordPost.topics === 'Leadership');
   check('approved keyword groups are stored together', recordPost && /Client Delivery/.test(recordPost.tags) && /Workshop/.test(recordPost.tags) && /Reusable/.test(recordPost.tags));
   check('the document year is taken from the title automatically', recordPost && recordPost.year === 2025);
@@ -588,6 +596,10 @@ async function main() {
     { id:'AKR-6', title:'Legacy Finance Reference', description:'An older record created before tags and file metadata existed.', driveLink:'https://drive.google.com/file/d/6/view', docType:'Report', topics:'Leadership', client:'', people:'', industry:'Banking & Finance', language:'English', library:'05 Research', folderPath:'Legacy', year:2024, status:'Active' }
   ];
   app.buildFacets();
+  const nameSearch=app.parseQuery('Sam Ali').facets[0];
+  check('typed name finds either role while a category filter selects only its own column',
+    app.hasFacet({relationshipManager:'Sam Ali'},nameSearch) && app.hasFacet({facilitator:'Sam Ali'},nameSearch) &&
+    !app.hasFacet({relationshipManager:'Sam Ali',tags:'Sam Ali'},{kind:'facilitator',value:'Sam Ali',source:'tap'}));
   check('a selected keyword can retrieve a tagged file', app.runSearch('keynote').hits[0].r.id === 'AKR-1');
   check('existing records remain searchable through normal words and aliases', app.runSearch('rfp adnoc').hits[0].r.id === 'AKR-2');
   check('older records without Tags, File Format or File Size remain searchable', app.runSearch('legacy finance').hits[0].r.id === 'AKR-6');
@@ -720,7 +732,11 @@ async function main() {
   const googleMeta = b.context.driveMetadata_('https://docs.google.com/document/d/googleDoc/edit');
   check('Google-native files receive a clear format and size label', googleMeta.format === 'Google Doc' && googleMeta.size === 'Google file');
 
+  for(const [group,value] of [['facilitator','Sam Ali'],['facilitator','Zoe Reed'],['relationshipManager','Sam Ali'],['eventLocation','City Hall']]){
+    check('manage '+group+' value '+value, post('editKeyword',{operation:'add',group,value}).ok);
+  }
   const recorded = b.context.record_({
+    facilitator:'Sam Ali, Zoe Reed', relationshipManager:'Sam Ali', eventLocation:'City Hall',
     title:'2025 - ADNOC GAS - Workshop Guide - v1',
     description:'A workshop guide for the Own The Room programme.',
     tags:'Client Delivery, Workshop, Executives, Own The Room',
@@ -730,7 +746,9 @@ async function main() {
   });
   check('record endpoint still saves successfully', recorded.ok === true);
   const indexRows = b.ss.getSheetByName('Knowledge Index').data;
-  check('the original 16 record columns stay in place and metadata is appended', indexRows[indexRows.length - 1].length === 18);
+  check('programme categories are appended after the existing 18 columns', indexRows[indexRows.length - 1].slice(18).join('|')==='Sam Ali|Sam Ali, Zoe Reed|City Hall');
+  check('facilitator rename updates the right field only', post('editKeyword',{operation:'rename',group:'facilitator',original:'Sam Ali',value:'Sam Khan',count:1}).ok &&
+    b.context.readRecords_(b.ss).some(r=>r.facilitator==='Sam Khan, Zoe Reed' && r.relationshipManager==='Sam Ali' && r.eventLocation==='City Hall'));
   check('multiple document types stay in the existing Doc Type column', indexRows[indexRows.length - 1][5] === 'Facilitator Guide, Framework');
   check('multiple and custom topics stay in the existing Topics column', indexRows[indexRows.length - 1][6] === 'Leadership, Customer Experience');
   check('Tags & Keywords remains column 16', indexRows[indexRows.length - 1][15] === 'Client Delivery, Workshop, Executives, Own The Room');
@@ -779,7 +797,7 @@ async function main() {
   check('operator guide explains normal search and tappable Tags and Keywords', /Tags and Keywords/i.test(operator) && /NORMAL SEARCH/i.test(operator) && /tap Filters/i.test(operator));
   check('operator guide and UI both omit the Stage category', !/What stage is it at/i.test(operator) && !/What stage is it at/i.test(html));
   check('simple checklist tests both typed and tapped retrieval', /normal typed search/i.test(checklist) && /tapping the same Topic or Tag/i.test(checklist));
-  check('maintenance notes document the compatible 18-column schema', /18 columns/i.test(maintenance) && /first 16 columns are unchanged/i.test(maintenance));
+  check('maintenance notes document the compatible 21-column schema', /21 columns/i.test(maintenance) && /original 18 columns keep their positions/i.test(maintenance));
   check('package has no external runtime test dependency', !/require\(['"]\.\.\//.test(fs.readFileSync(__filename, 'utf8')));
 
   console.log('\n================================');
